@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "747341693910",
+    "project_id": "online-taxi-service-39796",
+    "storage_bucket": "online-taxi-service-39796.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:747341693910:android:71150c1fce5bfa8cc61a77",
+        "android_client_info": {
+          "package_name": "com.example.onlineTaxiApp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "747341693910-1d5j4v1mj06qq228o7vqu0k7nfodjmb8.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.onlineTaxiApp",
+            "certificate_hash": "e973b5616cc2b435647c25b3b07cdc022126cc47"
+          }
+        },
+        {
+          "client_id": "747341693910-o1r6se1gk0d6ssgkg4eur3pjqtc6b7pg.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.onlineTaxiApp",
+            "certificate_hash": "ce0269dbf19697a311a88fc10cdb8ccc65cd3efe"
+          }
+        },
+        {
+          "client_id": "747341693910-4etv88lbd6ik0f4dsaatrtjcl0mvb2ng.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAJ4KUrnWB0QGsOaSzRYMEJIpANatd-EiQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "747341693910-4etv88lbd6ik0f4dsaatrtjcl0mvb2ng.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
