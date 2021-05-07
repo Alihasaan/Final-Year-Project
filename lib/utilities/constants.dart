@@ -22,3 +22,6 @@ final kBoxDecorationStyle = BoxDecoration(
     ),
   ],
 );
+final Color primary = Colors.yellow[700];
+final Color priText = Colors.black45;
+final Color scText = Colors.grey[900];

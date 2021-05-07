@@ -17,6 +17,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   bool showNum = true;
   String user;
   bool proceeing = false;
+  final _formKey = GlobalKey<FormState>();
 
   TextEditingController phonectrl = new TextEditingController();
 
@@ -30,13 +31,13 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
         title: Text(
           "Online Taxi App",
           style: TextStyle(
-            color: Colors.grey[900],
+            color: scText,
             fontFamily: 'OpenSans',
             fontSize: 20.0,
             fontWeight: FontWeight.bold,
           ),
         ),
-        backgroundColor: Colors.yellow[700],
+        backgroundColor: primary,
       ),
       body: Stack(children: <Widget>[
         GestureDetector(
@@ -50,9 +51,9 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                 end: Alignment.bottomCenter,
                 colors: [
                   Colors.white,
-                  Colors.yellow[100],
-                  Colors.yellowAccent[100],
-                  Colors.yellowAccent[100],
+                  Colors.white,
+                  Colors.white,
+                  Colors.white,
                 ],
                 stops: [0.1, 0.4, 0.7, 0.9],
               ),
@@ -75,7 +76,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                   Text(
                     'Welcome To the App.',
                     style: TextStyle(
-                      color: Colors.black45,
+                      color: priText,
                       fontFamily: 'OpenSans',
                       fontSize: 30.0,
                       fontWeight: FontWeight.bold,
@@ -86,13 +87,13 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                       ? Text(
                           FirebaseAuth.instance.currentUser.displayName,
                           style: TextStyle(
-                            color: Colors.black45,
+                            color: priText,
                             fontFamily: 'OpenSans',
                             fontSize: 30.0,
                             fontWeight: FontWeight.normal,
                           ),
                         )
-                      : CircularProgressIndicator(backgroundColor: Colors.red),
+                      : CircularProgressIndicator(backgroundColor: Colors.blue),
                   SizedBox(
                     height: 10,
                   ),
@@ -108,7 +109,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                   Text(
                     '- OR -',
                     style: TextStyle(
-                      color: Colors.black54,
+                      color: priText,
                       fontWeight: FontWeight.w400,
                     ),
                   ),
@@ -139,15 +140,14 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                 showNum = false;
               });
             },
-            child:
-                Text("Add Phone No", style: TextStyle(color: Colors.black45)),
+            child: Text("Add Phone No", style: TextStyle(color: priText)),
           );
         } else {
           return showNum == true
               ? Text(
                   snapshot.data.docs[0]['phoneNo'],
                   style: TextStyle(
-                    color: Colors.grey[900],
+                    color: scText,
                     fontFamily: 'OpenSans',
                     fontSize: 30.0,
                     fontWeight: FontWeight.normal,
@@ -173,7 +173,6 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
           decoration: kBoxDecorationStyle,
           height: 60.0,
           width: 75,
-          // color: Colors.blueAccent,
           child: Center(
             child: Row(
               children: [
@@ -206,16 +205,18 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
         _buildPhoneNoTF(),
         TextButton(
             onPressed: () {
-              AuthService(FirebaseAuth.instance)
-                  .addPhoneNo("+92" + phonectrl.text)
-                  .then((value) => {
-                        value == "Success"
-                            ? setState(() {
-                                showNum = true;
-                              })
-                            : showNum = false
-                      });
-              print(showNum);
+              if (_formKey.currentState.validate()) {
+                AuthService(FirebaseAuth.instance)
+                    .addPhoneNo("+92" + phonectrl.text)
+                    .then((value) => {
+                          value == "Success"
+                              ? setState(() {
+                                  showNum = true;
+                                })
+                              : showNum = false
+                        });
+                print(showNum);
+              } else {}
             },
             child: Container(
               margin: EdgeInsets.only(top: 25),
@@ -223,7 +224,6 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
               decoration: kBoxDecorationStyle,
               height: 60.0,
               width: 50,
-              // color: Colors.blueAccent,
               child: Center(
                 child: Text(
                   "Go",
@@ -256,7 +256,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
           child: Text(
             'Get Started ',
             style: TextStyle(
-              color: Colors.yellow[700],
+              color: primary,
               letterSpacing: 1.5,
               fontSize: 18.0,
               fontWeight: FontWeight.bold,
@@ -284,7 +284,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
           child: Text(
             'Log Out',
             style: TextStyle(
-              color: Colors.yellow[700],
+              color: primary,
               letterSpacing: 1.5,
               fontSize: 18.0,
               fontWeight: FontWeight.bold,
@@ -295,43 +295,43 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   }
 
   Widget _buildPhoneNoTF() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: <Widget>[
-        Container(
-          margin: EdgeInsets.only(right: 100),
-          child: Text(
-            'Phone No.',
-            style: TextStyle(color: Colors.black45),
-          ),
-        ),
-        SizedBox(height: 10.0),
-        Container(
-          alignment: Alignment.centerLeft,
-          decoration: kBoxDecorationStyle,
-          height: 60.0,
-          width: 220,
-          child: TextField(
-            controller: phonectrl,
-            obscureText: false,
-            keyboardType: TextInputType.phone,
-            style: TextStyle(
-              color: Colors.white,
-              fontFamily: 'OpenSans',
+    return Form(
+      key: _formKey,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Container(
+            margin: EdgeInsets.only(right: 100),
+            child: Text(
+              'Phone No.',
+              style: TextStyle(color: priText),
             ),
-            decoration: InputDecoration(
-              border: InputBorder.none,
-              contentPadding: EdgeInsets.all(14.0),
-              /* prefixIcon: Icon(
-                Icons.phone_android,
+          ),
+          SizedBox(height: 10.0),
+          Container(
+            alignment: Alignment.centerLeft,
+            decoration: kBoxDecorationStyle,
+            height: 60.0,
+            width: 220,
+            child: TextFormField(
+              controller: phonectrl,
+              validator: PhoneValidator.validate,
+              obscureText: false,
+              keyboardType: TextInputType.phone,
+              style: TextStyle(
                 color: Colors.white,
-              ),*/
-              hintText: 'Enter your Phone No.',
-              hintStyle: kHintTextStyle,
+                fontFamily: 'OpenSans',
+              ),
+              decoration: InputDecoration(
+                border: InputBorder.none,
+                contentPadding: EdgeInsets.all(14.0),
+                hintText: 'Enter your Phone No.',
+                hintStyle: kHintTextStyle,
+              ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 

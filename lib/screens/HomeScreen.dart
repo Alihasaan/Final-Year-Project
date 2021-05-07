@@ -1,11 +1,14 @@
 import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:onlineTaxiApp/screens/Divider.dart';
+import 'package:onlineTaxiApp/utilities/configMaps.dart';
+import 'package:onlineTaxiApp/utilities/constants.dart';
 
 class MainAppPage extends StatefulWidget {
   @override
@@ -17,28 +20,83 @@ class _MainAppPageState extends State<MainAppPage> {
   GoogleMapController newGoogleMapController;
   final db = FirebaseFirestore.instance;
   Position currentPosition;
+  LatLng currenLocation = LatLng(33.65258674284576, 73.07084250411232);
+  LatLng destLocation = LatLng(33.70835057763976, 73.02670407256345);
   String userNum;
   var geoLocator = Geolocator();
   void locatePosition() async {
     Position position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high);
     currentPosition = position;
+
     LatLng positionLatLing = LatLng(position.altitude, position.latitude);
     CameraPosition cameraPosition =
         CameraPosition(target: positionLatLing, zoom: 14);
-    newGoogleMapController
-        .animateCamera(CameraUpdate.newCameraPosition(cameraPosition));
+    // newGoogleMapController
+    //   .animateCamera(CameraUpdate.newCameraPosition(cameraPosition));
+  }
+
+  Set<Marker> _marker = Set<Marker>();
+
+  Set<Polyline> _polylines = Set<Polyline>();
+  List<LatLng> polylineCoordinates = [];
+  PolylinePoints polylinePoints;
+
+  @override
+  void initState() {
+    super.initState();
+    polylinePoints = PolylinePoints();
+  }
+
+  void setPolylines() async {
+    print(
+        "------------------------------------------------------------Polylines---------------------------------------------");
+    PolylineResult result = await PolylinePoints().getRouteBetweenCoordinates(
+      "AIzaSyAq2xonoSe1RK1UGm4oNeYU7_z_lS6T9og",
+      PointLatLng(currenLocation.latitude, currenLocation.longitude),
+      PointLatLng(destLocation.latitude, destLocation.longitude),
+    );
+    print("Status : " + result.status);
+    if (result.status == "OK") {
+      print(result.status);
+      result.points.forEach((PointLatLng point) {
+        polylineCoordinates.add(LatLng(point.latitude, point.longitude));
+      });
+    }
+    setState(() {
+      _polylines.add(Polyline(
+        width: 7,
+        polylineId: PolylineId("polyline"),
+        color: Colors.lightGreen,
+        points: polylineCoordinates,
+      ));
+    });
+  }
+
+  void showPinsOnMap() {
+    setState(() {
+      _marker.add(Marker(
+        markerId: MarkerId("StartLoc"),
+        position: currenLocation,
+        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
+      ));
+      _marker.add(Marker(
+        markerId: MarkerId("EndLoc"),
+        position: destLocation,
+        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
+      ));
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.yellow[700],
+        backgroundColor: primary,
         title: Text(
           "Online Taxi App",
           style: TextStyle(
-            color: Colors.grey[800],
+            color: scText,
             fontFamily: 'OpenSans',
             fontSize: 20.0,
             fontWeight: FontWeight.bold,
@@ -76,7 +134,7 @@ class _MainAppPageState extends State<MainAppPage> {
                             ),
                           )
                         : CircularProgressIndicator(
-                            backgroundColor: Colors.red),
+                            backgroundColor: Colors.blue),
                     SizedBox(
                       height: 10,
                     ),
@@ -95,7 +153,7 @@ class _MainAppPageState extends State<MainAppPage> {
                   ],
                 ),
                 decoration: BoxDecoration(
-                  color: Colors.yellow[700],
+                  color: primary,
                 ),
               ),
             ),
@@ -177,9 +235,13 @@ class _MainAppPageState extends State<MainAppPage> {
       body: Stack(children: [
         GoogleMap(
           myLocationEnabled: true,
+          compassEnabled: false,
+          tiltGesturesEnabled: false,
           zoomGesturesEnabled: true,
           zoomControlsEnabled: true,
           mapType: MapType.normal,
+          polylines: _polylines,
+          markers: _marker,
           myLocationButtonEnabled: true,
           initialCameraPosition:
               CameraPosition(target: LatLng(33.6844, 73.0479), zoom: 12),
@@ -187,6 +249,11 @@ class _MainAppPageState extends State<MainAppPage> {
             _googleMapController.complete(_controller);
             newGoogleMapController = _controller;
             locatePosition();
+            if (currenLocation.latitude != 0 && currenLocation.longitude != 0) {
+              showPinsOnMap();
+
+              setPolylines();
+            }
           },
         ),
         Positioned(
@@ -204,7 +271,7 @@ class _MainAppPageState extends State<MainAppPage> {
                       topRight: Radius.circular(15)),
                   boxShadow: [
                     BoxShadow(
-                        color: Colors.black54,
+                        color: priText,
                         blurRadius: 16,
                         spreadRadius: 0.5,
                         offset: Offset(0.7, 0.7))
@@ -221,14 +288,14 @@ class _MainAppPageState extends State<MainAppPage> {
                       ),
                       Text(
                         "Hi there",
-                        style: TextStyle(fontSize: 12, color: Colors.grey[800]),
+                        style: TextStyle(fontSize: 12, color: priText),
                       ),
                       SizedBox(
                         height: 8,
                       ),
                       Text(
                         "Where To",
-                        style: TextStyle(fontSize: 20, color: Colors.grey[800]),
+                        style: TextStyle(fontSize: 20, color: priText),
                       ),
                       SizedBox(
                         height: 8,
@@ -242,7 +309,7 @@ class _MainAppPageState extends State<MainAppPage> {
                               decoration: InputDecoration(
                                 prefixIcon: Icon(
                                   Icons.search,
-                                  color: Colors.amberAccent,
+                                  color: primary,
                                 ),
                                 contentPadding: EdgeInsets.all(10),
                                 enabledBorder: InputBorder.none,
@@ -262,7 +329,7 @@ class _MainAppPageState extends State<MainAppPage> {
                             borderRadius: BorderRadius.circular(10),
                             boxShadow: [
                               BoxShadow(
-                                  color: Colors.black54,
+                                  color: priText,
                                   offset: Offset(0, 2),
                                   blurRadius: 4,
                                   spreadRadius: 0)
@@ -287,13 +354,13 @@ class _MainAppPageState extends State<MainAppPage> {
                                 children: [
                                   Text(
                                     "Add Home ",
-                                    style: TextStyle(
-                                        fontSize: 20, color: Colors.grey[800]),
+                                    style:
+                                        TextStyle(fontSize: 20, color: scText),
                                   ),
                                   Text(
                                     "Add your Home Addreas.",
-                                    style: TextStyle(
-                                        fontSize: 12, color: Colors.grey[800]),
+                                    style:
+                                        TextStyle(fontSize: 12, color: scText),
                                   )
                                 ],
                               )
@@ -317,13 +384,11 @@ class _MainAppPageState extends State<MainAppPage> {
                               children: [
                                 Text(
                                   "Add Work ",
-                                  style: TextStyle(
-                                      fontSize: 20, color: Colors.grey[800]),
+                                  style: TextStyle(fontSize: 20, color: scText),
                                 ),
                                 Text(
                                   "Add your Office or Work Addreas.",
-                                  style: TextStyle(
-                                      fontSize: 12, color: Colors.grey[800]),
+                                  style: TextStyle(fontSize: 12, color: scText),
                                 )
                               ],
                             )

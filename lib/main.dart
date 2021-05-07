@@ -3,10 +3,11 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/services.dart';
 import 'package:onlineTaxiApp/auth_services.dart';
+import 'package:onlineTaxiApp/utilities/constants.dart';
 import 'package:provider/provider.dart';
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 import 'package:auto_size_text/auto_size_text.dart';
-import 'screens/FirstScreen.dart';
+import 'screens/WelcomeScreen.dart';
 import 'package:easy_loader/easy_loader.dart';
 
 Future<void> main() async {
@@ -53,23 +54,6 @@ class MyApp extends StatelessWidget {
             ),
           ),
         ));
-
-    /* MaterialApp(
-        title: 'Online Taxi App',
-        theme: ThemeData(
-          primarySwatch: Colors.blue,
-          visualDensity: VisualDensity.adaptivePlatformDensity,
-        ),
-        home: Scaffold(
-          appBar: AppBar(
-            title: Text("Online Taxi Service"),
-          ),
-          body: Center(
-              child: Container(
-            child: AuthWrapper(),
-          )),
-        ),
-      ),*/
   }
 }
 
@@ -131,7 +115,7 @@ class _LogInSignUpState extends State<LogInSignUp> {
             fontWeight: FontWeight.bold,
           ),
         ),
-        backgroundColor: Colors.yellow[700],
+        backgroundColor: primary,
       ),
       body: GestureDetector(
           onTap: () => FocusScope.of(context).unfocus(),
@@ -146,11 +130,6 @@ class _LogInSignUpState extends State<LogInSignUp> {
                   ),
                   child: Column(
                     children: <Widget>[
-                      /* Icon(
-                        Icons.account_circle,
-                        size: 130,
-                        color: Colors.blue,
-                      ),*/
                       Image.asset(
                         'assets/logo.png',
                         width: 600.0,
@@ -304,8 +283,7 @@ class _LogInSignUpState extends State<LogInSignUp> {
                       child: Text(
                         'SIGN IN',
                         style: TextStyle(
-                          color:
-                              signin == true ? Colors.yellow[700] : Colors.grey,
+                          color: signin == true ? primary : Colors.grey,
                           fontSize: 25.0,
                           fontWeight: FontWeight.bold,
                         ),
@@ -321,8 +299,7 @@ class _LogInSignUpState extends State<LogInSignUp> {
                       child: Text(
                         'SIGN UP',
                         style: TextStyle(
-                          color:
-                              signin != true ? Colors.yellow[700] : Colors.grey,
+                          color: signin != true ? primary : Colors.grey,
                           fontSize: 25.0,
                           fontWeight: FontWeight.bold,
                         ),
@@ -375,10 +352,9 @@ class _LogInSignUpState extends State<LogInSignUp> {
                         child: _obscureText
                             ? Icon(
                                 Icons.remove_red_eye_outlined,
-                                color: Colors.yellow[700],
+                                color: primary,
                               )
-                            : Icon(Icons.remove_red_eye,
-                                color: Colors.yellow[700]))
+                            : Icon(Icons.remove_red_eye, color: primary))
               ],
             ),
           ),
@@ -392,11 +368,10 @@ class _LogInSignUpState extends State<LogInSignUp> {
               child: processing == false
                   ? Text(
                       'Sign In',
-                      style:
-                          TextStyle(fontSize: 18.0, color: Colors.yellow[700]),
+                      style: TextStyle(fontSize: 18.0, color: primary),
                     )
                   : CircularProgressIndicator(
-                      backgroundColor: Colors.yellow[700],
+                      backgroundColor: primary,
                     )),
         ],
       ),
@@ -499,11 +474,9 @@ class _LogInSignUpState extends State<LogInSignUp> {
               child: processing == false
                   ? Text(
                       'Sign Up',
-                      style:
-                          TextStyle(fontSize: 18.0, color: Colors.yellow[700]),
+                      style: TextStyle(fontSize: 18.0, color: primary),
                     )
-                  : CircularProgressIndicator(
-                      backgroundColor: Colors.yellow[700])),
+                  : CircularProgressIndicator(backgroundColor: primary)),
         ],
       ),
     );

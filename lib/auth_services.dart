@@ -140,3 +140,15 @@ class PasswordValidator {
     }
   }
 }
+
+class PhoneValidator {
+  static String validate(String value) {
+    if (value.isEmpty) {
+      return "Please enter your Phone No.";
+    } else if (value.length < 10) {
+      return " Invalid Phone No. Format";
+    } else if (value.length > 10) {
+      return " Invalid Phone No. Format";
+    }
+  }
+}
