@@ -31,12 +31,27 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
         title: Text(
           "Online Taxi App",
           style: TextStyle(
-            color: scText,
+            color: title,
             fontFamily: 'OpenSans',
             fontSize: 20.0,
             fontWeight: FontWeight.bold,
           ),
         ),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(left: 15.0),
+            child: FlatButton(
+              onPressed: () {
+                AuthService(FirebaseAuth.instance).signOut();
+                AuthService(FirebaseAuth.instance).signOutGoogle();
+              },
+              child: Icon(
+                Icons.logout,
+                color: title,
+              ),
+            ),
+          )
+        ],
         backgroundColor: primary,
       ),
       body: Stack(children: <Widget>[
@@ -65,12 +80,13 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                     height: 70,
                   ),
                   CircleAvatar(
-                    radius: 50,
+                    radius: 70,
+                    backgroundColor: Colors.white,
                     backgroundImage: NetworkImage(FirebaseAuth
                                 .instance.currentUser.photoURL !=
                             null
                         ? FirebaseAuth.instance.currentUser.photoURL
-                        : 'https://johnskillerprotein.com/wp-content/uploads/2018/07/User-Icon-e1530808489436.png'),
+                        : 'https://cdn2.iconfinder.com/data/icons/green-2/32/expand-color-web2-23-512.png'),
                   ),
                   SizedBox(height: 20.0),
                   Text(

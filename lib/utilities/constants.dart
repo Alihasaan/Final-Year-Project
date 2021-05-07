@@ -12,7 +12,7 @@ final kLabelStyle = TextStyle(
 );
 
 final kBoxDecorationStyle = BoxDecoration(
-  color: Colors.yellow[700],
+  color: primary,
   borderRadius: BorderRadius.circular(10.0),
   boxShadow: [
     BoxShadow(
@@ -22,6 +22,7 @@ final kBoxDecorationStyle = BoxDecoration(
     ),
   ],
 );
-final Color primary = Colors.yellow[700];
+final Color primary = Colors.lightGreen;
 final Color priText = Colors.black45;
-final Color scText = Colors.grey[900];
+final Color scText = Colors.grey[800];
+final Color title = Colors.white;

@@ -83,7 +83,7 @@ class _MainAppPageState extends State<MainAppPage> {
       _marker.add(Marker(
         markerId: MarkerId("EndLoc"),
         position: destLocation,
-        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
+        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueCyan),
       ));
     });
   }
@@ -96,7 +96,7 @@ class _MainAppPageState extends State<MainAppPage> {
         title: Text(
           "Online Taxi App",
           style: TextStyle(
-            color: scText,
+            color: title,
             fontFamily: 'OpenSans',
             fontSize: 20.0,
             fontWeight: FontWeight.bold,
@@ -114,11 +114,12 @@ class _MainAppPageState extends State<MainAppPage> {
                   children: [
                     CircleAvatar(
                       radius: 35,
+                      backgroundColor: primary,
                       backgroundImage: NetworkImage(FirebaseAuth
                                   .instance.currentUser.photoURL !=
                               null
                           ? FirebaseAuth.instance.currentUser.photoURL
-                          : 'https://www.kindpng.com/picc/m/459-4595992_business-user-account-png-image-blue-link-icon.png'),
+                          : 'https://cdn2.iconfinder.com/data/icons/green-2/32/expand-color-web2-23-512.png'),
                     ),
                     SizedBox(
                       height: 5,

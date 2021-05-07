@@ -109,12 +109,24 @@ class _LogInSignUpState extends State<LogInSignUp> {
         title: Text(
           "Online Taxi App",
           style: TextStyle(
-            color: Colors.black,
+            color: title,
             fontFamily: 'OpenSans',
             fontSize: 20.0,
             fontWeight: FontWeight.bold,
           ),
         ),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(left: 20.0),
+            child: FlatButton(
+              onPressed: () {},
+              child: Icon(
+                Icons.login_rounded,
+                color: title,
+              ),
+            ),
+          )
+        ],
         backgroundColor: primary,
       ),
       body: GestureDetector(
@@ -132,9 +144,9 @@ class _LogInSignUpState extends State<LogInSignUp> {
                     children: <Widget>[
                       Image.asset(
                         'assets/logo.png',
-                        width: 600.0,
+                        width: 200.0,
                         height: 240.0,
-                        fit: BoxFit.none,
+                        fit: BoxFit.fitWidth,
                       ),
                       SizedBox(
                         height: 10,
