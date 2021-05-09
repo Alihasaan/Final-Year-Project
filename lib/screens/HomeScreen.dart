@@ -21,7 +21,7 @@ class _MainAppPageState extends State<MainAppPage> {
   final db = FirebaseFirestore.instance;
   Position currentPosition;
   LatLng currenLocation = LatLng(33.65258674284576, 73.07084250411232);
-  LatLng destLocation = LatLng(33.70835057763976, 73.02670407256345);
+  LatLng destLocation = LatLng(33.69817543885961, 73.07077813109619);
   String userNum;
   var geoLocator = Geolocator();
   void locatePosition() async {
@@ -32,8 +32,6 @@ class _MainAppPageState extends State<MainAppPage> {
     LatLng positionLatLing = LatLng(position.altitude, position.latitude);
     CameraPosition cameraPosition =
         CameraPosition(target: positionLatLing, zoom: 14);
-    // newGoogleMapController
-    //   .animateCamera(CameraUpdate.newCameraPosition(cameraPosition));
   }
 
   Set<Marker> _marker = Set<Marker>();

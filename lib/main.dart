@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'screens/WelcomeScreen.dart';
+import 'package:rflutter_alert/rflutter_alert.dart';
 import 'package:easy_loader/easy_loader.dart';
 
 Future<void> main() async {
@@ -83,6 +84,8 @@ class LogInSignUp extends StatefulWidget {
 class _LogInSignUpState extends State<LogInSignUp> {
   @override
   TextEditingController emailctrl, passctrl, namectrl, phonectrl;
+  TextEditingController emailFctrl = new TextEditingController();
+  TextEditingController errorControl = new TextEditingController();
   bool _obscureText = true;
   bool signin = true;
   bool processing = false;
@@ -96,6 +99,7 @@ class _LogInSignUpState extends State<LogInSignUp> {
     super.initState();
 
     emailctrl = new TextEditingController();
+    emailFctrl = new TextEditingController();
     passctrl = new TextEditingController();
     namectrl = new TextEditingController();
     phonectrl = new TextEditingController();
@@ -153,6 +157,10 @@ class _LogInSignUpState extends State<LogInSignUp> {
                       ),
                       showAlert(),
                       boxUi(),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      forgoetPassword(),
                       SizedBox(
                         height: 50,
                       ),
@@ -328,6 +336,94 @@ class _LogInSignUpState extends State<LogInSignUp> {
     );
   }
 
+  Widget forgoetPassword() {
+    String error = "";
+    return Padding(
+      padding: const EdgeInsets.only(right: 10.0),
+      child: Container(
+          child: MaterialButton(
+              onPressed: () => {
+                    Alert(
+                        context: context,
+                        title: "Reset Password",
+                        content: Column(
+                          children: <Widget>[
+                            Icon(
+                              Icons.email,
+                              color: primary,
+                              size: 60,
+                            ),
+                            Text(
+                              "Enter Your email for Password reset.",
+                              style: TextStyle(
+                                color: priText,
+                                fontFamily: 'OpenSans',
+                                fontSize: 20.0,
+                                fontWeight: FontWeight.normal,
+                              ),
+                            ),
+                            SizedBox(
+                              height: 10,
+                            ),
+                            TextField(
+                              controller: errorControl,
+                              style: TextStyle(
+                                color: Colors.redAccent,
+                                fontFamily: 'OpenSans',
+                                fontSize: 20.0,
+                                fontWeight: FontWeight.normal,
+                              ),
+                              decoration: new InputDecoration(
+                                  border: InputBorder.none,
+                                  focusedBorder: InputBorder.none,
+                                  enabledBorder: InputBorder.none,
+                                  errorBorder: InputBorder.none,
+                                  disabledBorder: InputBorder.none,
+                                  contentPadding: EdgeInsets.only(
+                                      left: 15, bottom: 11, top: 11, right: 15),
+                                  hintText: ""),
+                            ),
+                            SizedBox(
+                              height: 10,
+                            ),
+                            TextField(
+                              controller: emailFctrl,
+                              keyboardType: TextInputType.emailAddress,
+                              decoration: InputDecoration(
+                                  prefixIcon: Icon(
+                                    Icons.email,
+                                  ),
+                                  hintText: 'Email'),
+                            ),
+                            DialogButton(
+                              onPressed: () {
+                                if (emailFctrl.text.isNotEmpty) {
+                                  AuthService(FirebaseAuth.instance)
+                                      .resetPassword(emailFctrl.text);
+                                  Navigator.pop(context);
+                                } else if (emailFctrl.text.isEmpty) {
+                                  errorControl.text = "Email cannot be empty";
+                                }
+
+                                print(emailFctrl.text);
+                              },
+                              child: Text(
+                                "Send",
+                                style: TextStyle(
+                                    color: Colors.white, fontSize: 20),
+                              ),
+                            )
+                          ],
+                        ),
+                        buttons: []).show()
+                  },
+              child: Text(
+                'Forgot Password',
+                style: TextStyle(fontSize: 12.0, color: primary),
+              ))),
+    );
+  }
+
   Widget signInUi() {
     return Form(
       key: _formKey,
@@ -373,18 +469,25 @@ class _LogInSignUpState extends State<LogInSignUp> {
           SizedBox(
             height: 10.0,
           ),
-          MaterialButton(
-              onPressed: () => {
-                    if (_formKey.currentState.validate()) {userSignIn()}
-                  },
-              child: processing == false
-                  ? Text(
-                      'Sign In',
-                      style: TextStyle(fontSize: 18.0, color: primary),
-                    )
-                  : CircularProgressIndicator(
-                      backgroundColor: primary,
-                    )),
+          Column(
+            children: <Widget>[
+              SizedBox(
+                width: 100,
+              ),
+              MaterialButton(
+                  onPressed: () => {
+                        if (_formKey.currentState.validate()) {userSignIn()}
+                      },
+                  child: processing == false
+                      ? Text(
+                          'Sign In',
+                          style: TextStyle(fontSize: 18.0, color: primary),
+                        )
+                      : CircularProgressIndicator(
+                          backgroundColor: primary,
+                        )),
+            ],
+          ),
         ],
       ),
     );
@@ -467,15 +570,6 @@ class _LogInSignUpState extends State<LogInSignUp> {
           SizedBox(
             height: 10.0,
           ),
-
-          /* TextField(
-            controller: phonectrl,
-            decoration: InputDecoration(
-                prefixIcon: Icon(
-                  Icons.lock,
-                ),
-                hintText: 'Phone NO.'),
-          ),*/
           SizedBox(
             height: 10.0,
           ),

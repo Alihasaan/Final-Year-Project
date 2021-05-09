@@ -10,7 +10,6 @@ class AuthService {
   Stream<User> get authStateChanges => _firebaseAuth.authStateChanges();
 
   Future<String> signIn(String email, String password) async {
-    String temp;
     try {
       await _firebaseAuth.signInWithEmailAndPassword(
           email: email, password: password);
@@ -77,29 +76,6 @@ class AuthService {
     } else {
       print("Sign In Failed");
     }
-    /* final GoogleSignInAuthentication googleSignInAuthentication =
-        await googleSignInAccount.authentication;
-
-    final AuthCredential credential = GoogleAuthProvider.credential(
-      accessToken: googleSignInAuthentication.accessToken,
-      idToken: googleSignInAuthentication.idToken,
-    );
-
-    final UserCredential authResult =
-        await _firebaseAuth.signInWithCredential(credential);
-    final User user = authResult.user;
-
-    if (user != null) {
-      assert(!user.isAnonymous);
-      assert(await user.getIdToken() != null);
-
-      final User currentUser = _firebaseAuth.currentUser;
-      assert(user.uid == currentUser.uid);
-
-      print('signInWithGoogle succeeded: $user');
-
-      return '$user';
-    }*/
 
     return null;
   }
@@ -108,6 +84,10 @@ class AuthService {
     await googleSignIn.signOut();
 
     print("User Signed Out");
+  }
+
+  Future<void> resetPassword(String email) async {
+    await _firebaseAuth.sendPasswordResetEmail(email: email);
   }
 }
 

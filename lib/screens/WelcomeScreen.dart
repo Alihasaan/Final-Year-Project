@@ -65,10 +65,10 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
                 colors: [
-                  Colors.white,
-                  Colors.white,
-                  Colors.white,
-                  Colors.white,
+                  Colors.green[50],
+                  Colors.green[50],
+                  Colors.green[50],
+                  Colors.green[50],
                 ],
                 stops: [0.1, 0.4, 0.7, 0.9],
               ),
@@ -81,7 +81,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                   ),
                   CircleAvatar(
                     radius: 70,
-                    backgroundColor: Colors.white,
+                    backgroundColor: Colors.green[50],
                     backgroundImage: NetworkImage(FirebaseAuth
                                 .instance.currentUser.photoURL !=
                             null
@@ -146,7 +146,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     return StreamBuilder(
       stream: getTripsStream(),
       builder: (context, snapshot) {
-        print(snapshot);
+        // print(snapshot);
         if (!snapshot.hasData) {
           return CircularProgressIndicator(backgroundColor: Colors.white);
         } else if (snapshot.data.docs.length == 0) {
