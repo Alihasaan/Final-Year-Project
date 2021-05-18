@@ -99,6 +99,14 @@ class EmailValidator {
   }
 }
 
+class EmailSignUPValidator {
+  static String validate(String value) {
+    if (value.isEmpty) {
+      return "Email Can not be empty.";
+    }
+  }
+}
+
 class NameValidator {
   static String validate(String value) {
     if (value.isEmpty) {

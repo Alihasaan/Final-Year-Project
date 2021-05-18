@@ -85,6 +85,7 @@ class _LogInSignUpState extends State<LogInSignUp> {
   @override
   TextEditingController emailctrl, passctrl, namectrl, phonectrl;
   TextEditingController emailFctrl = new TextEditingController();
+  TextEditingController emailSignUpctrl = new TextEditingController();
   TextEditingController errorControl = new TextEditingController();
   bool _obscureText = true;
   bool signin = true;
@@ -142,43 +143,27 @@ class _LogInSignUpState extends State<LogInSignUp> {
                   physics: AlwaysScrollableScrollPhysics(),
                   padding: EdgeInsets.symmetric(
                     horizontal: 40.0,
-                    vertical: 80.0,
+                    vertical: 40.0,
                   ),
                   child: Column(
                     children: <Widget>[
                       Image.asset(
                         'assets/logo.png',
                         width: 200.0,
-                        height: 240.0,
+                        height: 200.0,
                         fit: BoxFit.fitWidth,
                       ),
                       SizedBox(
-                        height: 10,
+                        height: 20,
                       ),
                       showAlert(),
                       boxUi(),
                       SizedBox(
-                        height: 10,
-                      ),
-                      forgoetPassword(),
-                      SizedBox(
-                        height: 50,
+                        height: 35,
                       ),
                       signInGoogleButton(),
                     ],
                   )))),
-    );
-  }
-
-  void _openLoadingDialog(BuildContext context) {
-    showDialog(
-      barrierDismissible: false,
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          content: CircularProgressIndicator(),
-        );
-      },
     );
   }
 
@@ -339,7 +324,7 @@ class _LogInSignUpState extends State<LogInSignUp> {
   Widget forgoetPassword() {
     String error = "";
     return Padding(
-      padding: const EdgeInsets.only(right: 10.0),
+      padding: const EdgeInsets.only(right: 1.0),
       child: Container(
           child: MaterialButton(
               onPressed: () => {
@@ -427,68 +412,118 @@ class _LogInSignUpState extends State<LogInSignUp> {
   Widget signInUi() {
     return Form(
       key: _formKey,
-      child: Column(
-        children: <Widget>[
-          TextFormField(
-            validator: EmailValidator.validate,
-            controller: emailctrl,
-            keyboardType: TextInputType.emailAddress,
-            decoration: InputDecoration(
-                prefixIcon: Icon(
-                  Icons.email,
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Text(
+              "Your Email :",
+              style: TextStyle(fontSize: 15, color: priText),
+            ),
+            SizedBox(
+              height: 5,
+            ),
+            Container(
+              child: Theme(
+                data: new ThemeData(
+                  primaryColor: primary,
+                  primaryColorDark: Colors.red,
                 ),
-                hintText: 'Email'),
-          ),
-          Container(
-            child: Column(
-              children: [
-                TextFormField(
-                  onTap: _hideShow,
-                  validator: PasswordValidator.validate,
-                  obscureText: _obscureText,
-                  controller: passctrl,
-                  decoration: InputDecoration(
+                child: new TextFormField(
+                  validator: EmailValidator.validate,
+                  controller: emailctrl,
+                  keyboardType: TextInputType.emailAddress,
+                  decoration: new InputDecoration(
+                      border: new OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: new BorderSide(color: primary)),
                       prefixIcon: Icon(
-                        Icons.lock,
+                        Icons.email,
                       ),
-                      hintText: 'Password'),
+                      hintText: 'Email'),
                 ),
-                clicked == false
-                    ? Text("")
-                    : TextButton(
-                        onPressed: _toggle,
-                        child: _obscureText
-                            ? Icon(
-                                Icons.remove_red_eye_outlined,
-                                color: primary,
-                              )
-                            : Icon(Icons.remove_red_eye, color: primary))
+              ),
+            ),
+            SizedBox(
+              height: 10,
+            ),
+            Container(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "Password :",
+                    style: TextStyle(fontSize: 15, color: priText),
+                  ),
+                  SizedBox(
+                    height: 5,
+                  ),
+                  Theme(
+                    data: new ThemeData(
+                      primaryColor: primary,
+                      primaryColorDark: Colors.red,
+                    ),
+                    child: new TextFormField(
+                      obscureText: _obscureText,
+                      controller: passctrl,
+                      validator: PasswordValidator.validate,
+                      decoration: new InputDecoration(
+                          border: new OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                              borderSide: new BorderSide(color: primary)),
+                          hintText: 'Password',
+                          prefixIcon: const Icon(
+                            Icons.lock,
+                          ),
+                          suffixIcon: _obscureText
+                              ? IconButton(
+                                  icon: Icon(Icons.remove_red_eye_outlined,
+                                      color: primary),
+                                  onPressed: _toggle)
+                              : IconButton(
+                                  icon: Icon(Icons.remove_red_eye,
+                                      color: primary),
+                                  onPressed: _toggle)),
+                    ),
+                  )
+                ],
+              ),
+            ),
+            SizedBox(
+              height: 5,
+            ),
+            Center(child: forgoetPassword()),
+            SizedBox(
+              height: 10.0,
+            ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[
+                SizedBox(
+                  width: 100,
+                ),
+                Center(
+                  child: MaterialButton(
+                      color: primary,
+                      minWidth: 130,
+                      onPressed: () => {
+                            if (_formKey.currentState.validate()) {userSignIn()}
+                          },
+                      child: processing == false
+                          ? Text(
+                              'Sign In',
+                              style: TextStyle(
+                                  fontSize: 18.0, color: Colors.white),
+                            )
+                          : CircularProgressIndicator(
+                              backgroundColor: primary,
+                            )),
+                ),
               ],
             ),
-          ),
-          SizedBox(
-            height: 10.0,
-          ),
-          Column(
-            children: <Widget>[
-              SizedBox(
-                width: 100,
-              ),
-              MaterialButton(
-                  onPressed: () => {
-                        if (_formKey.currentState.validate()) {userSignIn()}
-                      },
-                  child: processing == false
-                      ? Text(
-                          'Sign In',
-                          style: TextStyle(fontSize: 18.0, color: primary),
-                        )
-                      : CircularProgressIndicator(
-                          backgroundColor: primary,
-                        )),
-            ],
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -533,57 +568,136 @@ class _LogInSignUpState extends State<LogInSignUp> {
   Widget signUpUi() {
     return Form(
       key: _formKey,
-      child: Column(
-        children: <Widget>[
-          TextFormField(
-            validator: NameValidator.validate,
-            controller: namectrl,
-            decoration: InputDecoration(
-                prefixIcon: Icon(
-                  Icons.account_circle_outlined,
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Text(
+              "Your Email :",
+              style: TextStyle(fontSize: 15, color: priText),
+            ),
+            SizedBox(
+              height: 5,
+            ),
+            Container(
+              child: Theme(
+                data: new ThemeData(
+                  primaryColor: primary,
+                  primaryColorDark: Colors.red,
                 ),
-                hintText: 'Name'),
-          ),
-          SizedBox(
-            height: 10.0,
-          ),
-          TextFormField(
-            controller: emailctrl,
-            validator: EmailValidator.validate,
-            keyboardType: TextInputType.emailAddress,
-            decoration: InputDecoration(
-                prefixIcon: Icon(
-                  Icons.email_outlined,
+                child: new TextFormField(
+                  validator: EmailValidator.validate,
+                  controller: emailctrl,
+                  keyboardType: TextInputType.emailAddress,
+                  decoration: new InputDecoration(
+                      border: new OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: new BorderSide(color: primary)),
+                      prefixIcon: Icon(
+                        Icons.email,
+                      ),
+                      hintText: 'Email'),
                 ),
-                hintText: 'Email'),
-          ),
-          TextFormField(
-            validator: PasswordValidator.validate,
-            controller: passctrl,
-            obscureText: true,
-            decoration: InputDecoration(
-                prefixIcon: Icon(
-                  Icons.lock_outline_rounded,
+              ),
+            ),
+            SizedBox(
+              height: 10,
+            ),
+            Container(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "Password :",
+                    style: TextStyle(fontSize: 15, color: priText),
+                  ),
+                  SizedBox(
+                    height: 5,
+                  ),
+                  Theme(
+                    data: new ThemeData(
+                      primaryColor: primary,
+                      primaryColorDark: Colors.red,
+                    ),
+                    child: new TextFormField(
+                      obscureText: _obscureText,
+                      controller: passctrl,
+                      validator: PasswordValidator.validate,
+                      decoration: new InputDecoration(
+                          border: new OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                              borderSide: new BorderSide(color: primary)),
+                          hintText: 'Password',
+                          prefixIcon: const Icon(
+                            Icons.lock,
+                          ),
+                          suffixIcon: _obscureText
+                              ? IconButton(
+                                  icon: Icon(Icons.remove_red_eye_outlined,
+                                      color: primary),
+                                  onPressed: _toggle)
+                              : IconButton(
+                                  icon: Icon(Icons.remove_red_eye,
+                                      color: primary),
+                                  onPressed: _toggle)),
+                    ),
+                  )
+                ],
+              ),
+            ),
+            SizedBox(
+              height: 10,
+            ),
+            Text(
+              "Your Name :",
+              style: TextStyle(fontSize: 15, color: priText),
+            ),
+            SizedBox(
+              height: 5,
+            ),
+            Container(
+              child: Theme(
+                data: new ThemeData(
+                  primaryColor: primary,
+                  primaryColorDark: Colors.red,
                 ),
-                hintText: 'Password'),
-          ),
-          SizedBox(
-            height: 10.0,
-          ),
-          SizedBox(
-            height: 10.0,
-          ),
-          MaterialButton(
-              onPressed: () => {
-                    if (_formKey.currentState.validate()) {registerUser()}
-                  },
-              child: processing == false
-                  ? Text(
-                      'Sign Up',
-                      style: TextStyle(fontSize: 18.0, color: primary),
-                    )
-                  : CircularProgressIndicator(backgroundColor: primary)),
-        ],
+                child: new TextFormField(
+                  validator: NameValidator.validate,
+                  controller: namectrl,
+                  decoration: new InputDecoration(
+                      border: new OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: new BorderSide(color: primary)),
+                      prefixIcon: Icon(
+                        Icons.portrait,
+                      ),
+                      hintText: 'Name'),
+                ),
+              ),
+            ),
+            SizedBox(
+              height: 20.0,
+            ),
+            Center(
+              child: MaterialButton(
+                  color: primary,
+                  minWidth: 130,
+                  onPressed: () => {
+                        if (_formKey.currentState.validate()) {registerUser()}
+                      },
+                  child: processing == false
+                      ? Text(
+                          'Sign Up',
+                          style: TextStyle(fontSize: 18.0, color: Colors.white),
+                        )
+                      : CircularProgressIndicator(backgroundColor: primary)),
+            ),
+            SizedBox(
+              height: 10.0,
+            ),
+          ],
+        ),
       ),
     );
   }

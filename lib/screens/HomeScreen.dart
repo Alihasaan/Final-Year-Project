@@ -6,6 +6,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:onlineTaxiApp/Assistants/assistantMethods.dart';
 import 'package:onlineTaxiApp/screens/Divider.dart';
 import 'package:onlineTaxiApp/utilities/configMaps.dart';
 import 'package:onlineTaxiApp/utilities/constants.dart';
@@ -32,10 +33,17 @@ class _MainAppPageState extends State<MainAppPage> {
     LatLng positionLatLing = LatLng(position.altitude, position.latitude);
     CameraPosition cameraPosition =
         CameraPosition(target: positionLatLing, zoom: 14);
+
+    String address = await AssistantsMethods.searchCoordinatesAddress(position);
+    print("This is your Addreaa " + address);
+
+    setState(() {
+      locationAddress = address;
+    });
   }
 
   Set<Marker> _marker = Set<Marker>();
-
+  String locationAddress = "";
   Set<Polyline> _polylines = Set<Polyline>();
   List<LatLng> polylineCoordinates = [];
   PolylinePoints polylinePoints;
@@ -56,7 +64,6 @@ class _MainAppPageState extends State<MainAppPage> {
     );
     print("Status : " + result.status);
     if (result.status == "OK") {
-      print(result.status);
       result.points.forEach((PointLatLng point) {
         polylineCoordinates.add(LatLng(point.latitude, point.longitude));
       });
@@ -249,9 +256,9 @@ class _MainAppPageState extends State<MainAppPage> {
             newGoogleMapController = _controller;
             locatePosition();
             if (currenLocation.latitude != 0 && currenLocation.longitude != 0) {
-              showPinsOnMap();
+              //  showPinsOnMap();
 
-              setPolylines();
+              //setPolylines();
             }
           },
         ),
@@ -262,7 +269,7 @@ class _MainAppPageState extends State<MainAppPage> {
             child: GestureDetector(
               onTap: () => FocusScope.of(context).unfocus(),
               child: Container(
-                height: 300.0,
+                height: 330.0,
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.only(
@@ -285,16 +292,33 @@ class _MainAppPageState extends State<MainAppPage> {
                       SizedBox(
                         height: 6,
                       ),
-                      Text(
-                        "Hi there",
-                        style: TextStyle(fontSize: 12, color: priText),
-                      ),
+                      locationAddress == ""
+                          ? SizedBox(
+                              height: 8,
+                            )
+                          : Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  "You're here",
+                                  style:
+                                      TextStyle(fontSize: 12, color: priText),
+                                ),
+                                SizedBox(
+                                  height: 8,
+                                ),
+                                Text(
+                                  locationAddress == "" ? "" : locationAddress,
+                                  style: TextStyle(fontSize: 20, color: scText),
+                                ),
+                              ],
+                            ),
                       SizedBox(
-                        height: 8,
+                        height: 10,
                       ),
                       Text(
                         "Where To",
-                        style: TextStyle(fontSize: 20, color: priText),
+                        style: TextStyle(fontSize: 15, color: priText),
                       ),
                       SizedBox(
                         height: 8,
