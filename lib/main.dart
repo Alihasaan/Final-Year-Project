@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/services.dart';
+import 'package:onlineTaxiApp/DataHandler/appData.dart';
 import 'package:onlineTaxiApp/auth_services.dart';
 import 'package:onlineTaxiApp/utilities/constants.dart';
 import 'package:provider/provider.dart';
@@ -26,35 +27,38 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MultiProvider(
-        providers: [
-          Provider<AuthService>(
-            create: (_) => AuthService(FirebaseAuth.instance),
-          ),
-          StreamProvider(
-            create: (context) => context.read<AuthService>().authStateChanges,
-          )
-        ],
-        child: GestureDetector(
-          onTap: () {
-            FocusScopeNode currentFocus = FocusScope.of(context);
-            if (!currentFocus.hasPrimaryFocus) {
-              currentFocus.unfocus();
-            }
-          },
-          child: MaterialApp(
-            title: 'Online Taxi Ap',
-            theme: ThemeData(
-              primarySwatch: Colors.blue,
+    return ChangeNotifierProvider(
+      create: (context) => AppData(),
+      child: MultiProvider(
+          providers: [
+            Provider<AuthService>(
+              create: (_) => AuthService(FirebaseAuth.instance),
             ),
-            home: Scaffold(
-              body: Center(
-                  child: Container(
-                child: AuthWrapper(),
-              )),
+            StreamProvider(
+              create: (context) => context.read<AuthService>().authStateChanges,
+            )
+          ],
+          child: GestureDetector(
+            onTap: () {
+              FocusScopeNode currentFocus = FocusScope.of(context);
+              if (!currentFocus.hasPrimaryFocus) {
+                currentFocus.unfocus();
+              }
+            },
+            child: MaterialApp(
+              title: 'Online Taxi Ap',
+              theme: ThemeData(
+                primarySwatch: Colors.blue,
+              ),
+              home: Scaffold(
+                body: Center(
+                    child: Container(
+                  child: AuthWrapper(),
+                )),
+              ),
             ),
-          ),
-        ));
+          )),
+    );
   }
 }
 
@@ -507,6 +511,7 @@ class _LogInSignUpState extends State<LogInSignUp> {
                   child: MaterialButton(
                       color: primary,
                       minWidth: 130,
+                      height: 45,
                       onPressed: () => {
                             if (_formKey.currentState.validate()) {userSignIn()}
                           },
@@ -517,7 +522,7 @@ class _LogInSignUpState extends State<LogInSignUp> {
                                   fontSize: 18.0, color: Colors.white),
                             )
                           : CircularProgressIndicator(
-                              backgroundColor: primary,
+                              backgroundColor: Colors.white,
                             )),
                 ),
               ],
@@ -573,6 +578,39 @@ class _LogInSignUpState extends State<LogInSignUp> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
+            SizedBox(
+              height: 8,
+            ),
+            Text(
+              "Your Name :",
+              style: TextStyle(fontSize: 15, color: priText),
+            ),
+            SizedBox(
+              height: 8,
+            ),
+            Container(
+              child: Theme(
+                data: new ThemeData(
+                  primaryColor: primary,
+                  primaryColorDark: Colors.red,
+                ),
+                child: new TextFormField(
+                  validator: NameValidator.validate,
+                  controller: namectrl,
+                  decoration: new InputDecoration(
+                      border: new OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: new BorderSide(color: primary)),
+                      prefixIcon: Icon(
+                        Icons.portrait,
+                      ),
+                      hintText: 'Name'),
+                ),
+              ),
+            ),
+            SizedBox(
+              height: 5,
+            ),
             Text(
               "Your Email :",
               style: TextStyle(fontSize: 15, color: priText),
@@ -629,6 +667,7 @@ class _LogInSignUpState extends State<LogInSignUp> {
                               borderRadius: BorderRadius.circular(10),
                               borderSide: new BorderSide(color: primary)),
                           hintText: 'Password',
+                          helperText: "Password must be 8 characters long.",
                           prefixIcon: const Icon(
                             Icons.lock,
                           ),
@@ -647,42 +686,13 @@ class _LogInSignUpState extends State<LogInSignUp> {
               ),
             ),
             SizedBox(
-              height: 10,
-            ),
-            Text(
-              "Your Name :",
-              style: TextStyle(fontSize: 15, color: priText),
-            ),
-            SizedBox(
-              height: 5,
-            ),
-            Container(
-              child: Theme(
-                data: new ThemeData(
-                  primaryColor: primary,
-                  primaryColorDark: Colors.red,
-                ),
-                child: new TextFormField(
-                  validator: NameValidator.validate,
-                  controller: namectrl,
-                  decoration: new InputDecoration(
-                      border: new OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: new BorderSide(color: primary)),
-                      prefixIcon: Icon(
-                        Icons.portrait,
-                      ),
-                      hintText: 'Name'),
-                ),
-              ),
-            ),
-            SizedBox(
               height: 20.0,
             ),
             Center(
               child: MaterialButton(
                   color: primary,
                   minWidth: 130,
+                  height: 45,
                   onPressed: () => {
                         if (_formKey.currentState.validate()) {registerUser()}
                       },
@@ -691,7 +701,8 @@ class _LogInSignUpState extends State<LogInSignUp> {
                           'Sign Up',
                           style: TextStyle(fontSize: 18.0, color: Colors.white),
                         )
-                      : CircularProgressIndicator(backgroundColor: primary)),
+                      : CircularProgressIndicator(
+                          backgroundColor: Colors.white)),
             ),
             SizedBox(
               height: 10.0,

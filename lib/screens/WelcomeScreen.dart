@@ -80,13 +80,12 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                     height: 70,
                   ),
                   CircleAvatar(
-                    radius: 70,
+                    radius: 60,
                     backgroundColor: Colors.green[50],
-                    backgroundImage: NetworkImage(FirebaseAuth
-                                .instance.currentUser.photoURL !=
-                            null
-                        ? FirebaseAuth.instance.currentUser.photoURL
-                        : 'https://cdn2.iconfinder.com/data/icons/green-2/32/expand-color-web2-23-512.png'),
+                    backgroundImage: NetworkImage(
+                        FirebaseAuth.instance.currentUser.photoURL != null
+                            ? FirebaseAuth.instance.currentUser.photoURL
+                            : photoURL),
                   ),
                   SizedBox(height: 20.0),
                   Text(

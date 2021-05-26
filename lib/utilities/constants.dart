@@ -26,3 +26,5 @@ final Color primary = Colors.lightBlue;
 final Color priText = Colors.black45;
 final Color scText = Colors.grey[800];
 final Color title = Colors.white;
+String photoURL =
+    'https://w7.pngwing.com/pngs/831/88/png-transparent-user-profile-computer-icons-user-interface-mystique-miscellaneous-user-interface-design-smile.png';

@@ -7,9 +7,12 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:onlineTaxiApp/Assistants/assistantMethods.dart';
+import 'package:onlineTaxiApp/DataHandler/appData.dart';
 import 'package:onlineTaxiApp/screens/Divider.dart';
+import 'package:onlineTaxiApp/screens/SearchBar/SearchBar.dart';
 import 'package:onlineTaxiApp/utilities/configMaps.dart';
 import 'package:onlineTaxiApp/utilities/constants.dart';
+import 'package:provider/provider.dart';
 
 class MainAppPage extends StatefulWidget {
   @override
@@ -28,22 +31,21 @@ class _MainAppPageState extends State<MainAppPage> {
   void locatePosition() async {
     Position position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high);
-    currentPosition = position;
 
     LatLng positionLatLing = LatLng(position.altitude, position.latitude);
     CameraPosition cameraPosition =
         CameraPosition(target: positionLatLing, zoom: 14);
-
-    String address = await AssistantsMethods.searchCoordinatesAddress(position);
-    print("This is your Addreaa " + address);
-
+    currenLocation = LatLng(33.65258674284576, 73.07084250411232);
+    String address =
+        await AssistantsMethods.searchCoordinatesAddress(position, context);
+    print(address);
     setState(() {
-      locationAddress = address;
+      userLocation = address;
     });
   }
 
   Set<Marker> _marker = Set<Marker>();
-  String locationAddress = "";
+  String userLocation;
   Set<Polyline> _polylines = Set<Polyline>();
   List<LatLng> polylineCoordinates = [];
   PolylinePoints polylinePoints;
@@ -72,7 +74,7 @@ class _MainAppPageState extends State<MainAppPage> {
       _polylines.add(Polyline(
         width: 7,
         polylineId: PolylineId("polyline"),
-        color: Colors.lightGreen,
+        color: Colors.lightBlueAccent,
         points: polylineCoordinates,
       ));
     });
@@ -83,12 +85,12 @@ class _MainAppPageState extends State<MainAppPage> {
       _marker.add(Marker(
         markerId: MarkerId("StartLoc"),
         position: currenLocation,
-        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
+        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueCyan),
       ));
       _marker.add(Marker(
         markerId: MarkerId("EndLoc"),
         position: destLocation,
-        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueCyan),
+        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueYellow),
       ));
     });
   }
@@ -120,11 +122,10 @@ class _MainAppPageState extends State<MainAppPage> {
                     CircleAvatar(
                       radius: 35,
                       backgroundColor: primary,
-                      backgroundImage: NetworkImage(FirebaseAuth
-                                  .instance.currentUser.photoURL !=
-                              null
-                          ? FirebaseAuth.instance.currentUser.photoURL
-                          : 'https://cdn2.iconfinder.com/data/icons/green-2/32/expand-color-web2-23-512.png'),
+                      backgroundImage: NetworkImage(
+                          FirebaseAuth.instance.currentUser.photoURL != null
+                              ? FirebaseAuth.instance.currentUser.photoURL
+                              : photoURL),
                     ),
                     SizedBox(
                       height: 5,
@@ -240,6 +241,10 @@ class _MainAppPageState extends State<MainAppPage> {
       ),
       body: Stack(children: [
         GoogleMap(
+          padding: EdgeInsets.only(
+              bottom: Provider.of<AppData>(context).pickUpLocation == null
+                  ? 270
+                  : 330.0),
           myLocationEnabled: true,
           compassEnabled: false,
           tiltGesturesEnabled: false,
@@ -256,9 +261,8 @@ class _MainAppPageState extends State<MainAppPage> {
             newGoogleMapController = _controller;
             locatePosition();
             if (currenLocation.latitude != 0 && currenLocation.longitude != 0) {
-              //  showPinsOnMap();
-
-              //setPolylines();
+              // showPinsOnMap();
+              // setPolylines();
             }
           },
         ),
@@ -269,7 +273,9 @@ class _MainAppPageState extends State<MainAppPage> {
             child: GestureDetector(
               onTap: () => FocusScope.of(context).unfocus(),
               child: Container(
-                height: 330.0,
+                height: Provider.of<AppData>(context).pickUpLocation == null
+                    ? 270
+                    : 300,
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.only(
@@ -292,7 +298,7 @@ class _MainAppPageState extends State<MainAppPage> {
                       SizedBox(
                         height: 6,
                       ),
-                      locationAddress == ""
+                      Provider.of<AppData>(context).pickUpLocation == null
                           ? SizedBox(
                               height: 8,
                             )
@@ -308,7 +314,9 @@ class _MainAppPageState extends State<MainAppPage> {
                                   height: 8,
                                 ),
                                 Text(
-                                  locationAddress == "" ? "" : locationAddress,
+                                  Provider.of<AppData>(context)
+                                      .pickUpLocation
+                                      .placeName,
                                   style: TextStyle(fontSize: 20, color: scText),
                                 ),
                               ],
@@ -323,41 +331,57 @@ class _MainAppPageState extends State<MainAppPage> {
                       SizedBox(
                         height: 8,
                       ),
-                      Container(
-                          width: 350,
-                          height: 44,
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: TextField(
-                              decoration: InputDecoration(
-                                prefixIcon: Icon(
-                                  Icons.search,
-                                  color: primary,
-                                ),
-                                contentPadding: EdgeInsets.all(10),
-                                enabledBorder: InputBorder.none,
-                                hintText: 'To',
-                                labelStyle: TextStyle(
-                                  fontFamily: 'AlegreyaSansSC',
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w400,
-                                  fontStyle: FontStyle.normal,
-                                  letterSpacing: 0,
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => SearchBar()));
+                        },
+                        child: Container(
+                            width: 350,
+                            height: 44,
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: TextField(
+                                enabled: false,
+                                onTap: () {
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => SearchBar()));
+                                },
+                                decoration: InputDecoration(
+                                  prefixIcon: Icon(
+                                    Icons.search,
+                                    color: primary,
+                                  ),
+                                  contentPadding: EdgeInsets.all(10),
+                                  enabledBorder: InputBorder.none,
+                                  disabledBorder: InputBorder.none,
+                                  hintText: 'Search Destination',
+                                  labelStyle: TextStyle(
+                                    fontFamily: 'AlegreyaSansSC',
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w400,
+                                    fontStyle: FontStyle.normal,
+                                    letterSpacing: 0,
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-                          decoration: new BoxDecoration(
-                            color: Color(0xffffffff),
-                            borderRadius: BorderRadius.circular(10),
-                            boxShadow: [
-                              BoxShadow(
-                                  color: priText,
-                                  offset: Offset(0, 2),
-                                  blurRadius: 4,
-                                  spreadRadius: 0)
-                            ],
-                          )),
+                            decoration: new BoxDecoration(
+                              color: Color(0xffffffff),
+                              borderRadius: BorderRadius.circular(10),
+                              boxShadow: [
+                                BoxShadow(
+                                    color: priText,
+                                    offset: Offset(0, 2),
+                                    blurRadius: 4,
+                                    spreadRadius: 0)
+                              ],
+                            )),
+                      ),
                       SizedBox(
                         height: 20,
                       ),
