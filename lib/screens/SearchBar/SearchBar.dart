@@ -226,7 +226,6 @@ class _SearchBarState extends State<SearchBar> {
 
         setState(() {
           placePredictionList = placeList;
-          print(placePredictionList);
         });
       }
     }
@@ -240,21 +239,26 @@ class PredictionTitle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-        child: Card(
-      child: ListTile(
-        leading: Icon(
-          Icons.pin_drop_outlined,
-          color: Colors.amber[400],
-        ),
-        title: Text(
-          placePredictions.main_text,
-          overflow: TextOverflow.ellipsis,
-          style: TextStyle(fontSize: 20, color: Colors.grey[700]),
-        ),
-        subtitle: Text(
-          placePredictions.secondary_text,
-          overflow: TextOverflow.ellipsis,
-          style: TextStyle(fontSize: 20, color: priText),
+        child: TextButton(
+      onPressed: () {
+        getPlacesDetails(placePredictions.place_id, context);
+      },
+      child: Card(
+        child: ListTile(
+          leading: Icon(
+            Icons.pin_drop_outlined,
+            color: Colors.amber[400],
+          ),
+          title: Text(
+            placePredictions.main_text,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(fontSize: 20, color: Colors.grey[700]),
+          ),
+          subtitle: Text(
+            placePredictions.secondary_text,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(fontSize: 20, color: priText),
+          ),
         ),
       ),
     ) /*Column(
@@ -306,9 +310,26 @@ class PredictionTitle extends StatelessWidget {
   }
 
   void getPlacesDetails(String placeID, context) async {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) => Dialog(
+              child: Container(
+                padding: EdgeInsets.all(20),
+                child: Row(
+                  children: [
+                    CircularProgressIndicator(),
+                    SizedBox(
+                      width: 20,
+                    ),
+                    Text("Seting Location........ ")
+                  ],
+                ),
+              ),
+            ));
     String placeDetailsRul =
         "https://maps.googleapis.com/maps/api/place/details/json?place_id=$placeID&key=$GoogleMapsAPI";
     var res = await RequestAssistant.getRequest(placeDetailsRul);
+    Navigator.pop(context);
     if (res == "failed") {
       return;
     }
@@ -317,12 +338,12 @@ class PredictionTitle extends StatelessWidget {
       address.placeName = res['result']['name'];
       address.placeID = placeID;
       address.latitude = res['result']['geometry']['location']['lat'];
-      address.latitude = res['result']['geometry']['location']['lng'];
+      address.longitude = res['result']['geometry']['location']['lng'];
 
       Provider.of<AppData>(context, listen: false)
           .updateUserDropOffLOcation(address);
-          print(address)
+      //print(address.placeName);
+      Navigator.pop(context, "obtainDirection");
     }
-
   }
 }
