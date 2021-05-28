@@ -8,9 +8,11 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:onlineTaxiApp/Assistants/assistantMethods.dart';
 import 'package:onlineTaxiApp/DataHandler/appData.dart';
+import 'package:onlineTaxiApp/Models/directionDetails.dart';
 import 'package:onlineTaxiApp/screens/Divider.dart';
 import 'package:onlineTaxiApp/screens/SearchBar/SearchBar.dart';
 import 'package:onlineTaxiApp/utilities/configMaps.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:onlineTaxiApp/utilities/constants.dart';
 import 'package:provider/provider.dart';
 
@@ -45,34 +47,15 @@ class _MainAppPageState extends State<MainAppPage> {
   }
 
   Set<Marker> _marker = Set<Marker>();
+  Set<Circle> _circle = {};
   String userLocation;
   Set<Polyline> _polylines = {};
   List<LatLng> polylineCoordinates = [];
 
+  DriectionDetails tripDetails;
   @override
   void initState() {
     super.initState();
-  }
-
-  void showPinsOnMap() {
-    var intialPos = Provider.of<AppData>(context, listen: false).pickUpLocation;
-    var finalPos = Provider.of<AppData>(context, listen: false).dropOffLocation;
-
-    LatLng pickUpLatng = LatLng(intialPos.latitude, intialPos.longitude);
-
-    LatLng dropOffLatng = LatLng(finalPos.latitude, finalPos.longitude);
-    setState(() {
-      _marker.add(Marker(
-        markerId: MarkerId("StartLoc"),
-        position: pickUpLatng,
-        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueCyan),
-      ));
-      _marker.add(Marker(
-        markerId: MarkerId("EndLoc"),
-        position: dropOffLatng,
-        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueYellow),
-      ));
-    });
   }
 
   @override
@@ -240,10 +223,6 @@ class _MainAppPageState extends State<MainAppPage> {
             _googleMapController.complete(_controller);
             newGoogleMapController = _controller;
             locatePosition();
-            if (Provider.of<AppData>(context, listen: false).dropOffLocation !=
-                null) {
-              showPinsOnMap();
-            }
           },
         ),
         Positioned(
@@ -253,14 +232,7 @@ class _MainAppPageState extends State<MainAppPage> {
             child: GestureDetector(
               onTap: () => FocusScope.of(context).unfocus(),
               child: Container(
-                height: Provider.of<AppData>(context).pickUpLocation == null
-                    ? 270
-                    : Provider.of<AppData>(context)
-                            .pickUpLocation
-                            .placeName
-                            .length
-                            .toDouble() +
-                        290,
+                height: 330,
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.only(
@@ -277,161 +249,303 @@ class _MainAppPageState extends State<MainAppPage> {
                 child: Padding(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 24, vertical: 18),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      SizedBox(
-                        height: 6,
-                      ),
-                      Provider.of<AppData>(context).pickUpLocation == null
-                          ? SizedBox(
-                              height: 8,
-                            )
-                          : Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  "You're here",
-                                  style:
-                                      TextStyle(fontSize: 12, color: priText),
-                                ),
-                                SizedBox(
-                                  height: 8,
-                                ),
-                                Text(
-                                  Provider.of<AppData>(context)
-                                      .pickUpLocation
-                                      .placeName,
-                                  style: TextStyle(fontSize: 20, color: scText),
-                                ),
-                              ],
-                            ),
-                      SizedBox(
-                        height: 10,
-                      ),
-                      Text(
-                        "Where To",
-                        style: TextStyle(fontSize: 15, color: priText),
-                      ),
-                      SizedBox(
-                        height: 8,
-                      ),
-                      Provider.of<AppData>(context, listen: false)
-                                  .dropOffLocation ==
-                              null
-                          ? GestureDetector(
-                              onTap: () async {
-                                var res = await Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) => SearchBar()));
-                                if (res == "obtainDirection") {
-                                  await getPlaceDirction();
-                                }
-                              },
-                              child: Container(
-                                  width: 350,
-                                  height: 44,
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: TextField(
-                                      enabled: false,
-                                      decoration: InputDecoration(
-                                        prefixIcon: Icon(
-                                          Icons.search,
+                  child: SingleChildScrollView(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(
+                          height: 6,
+                        ),
+                        Provider.of<AppData>(context).pickUpLocation == null
+                            ? SizedBox(
+                                height: 8,
+                              )
+                            : Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    "You're here",
+                                    style:
+                                        TextStyle(fontSize: 15, color: priText),
+                                  ),
+                                  SizedBox(
+                                    height: 8,
+                                  ),
+                                  Text(
+                                    Provider.of<AppData>(context)
+                                        .pickUpLocation
+                                        .placeName,
+                                    style:
+                                        TextStyle(fontSize: 20, color: scText),
+                                  ),
+                                ],
+                              ),
+                        SizedBox(
+                          height: 10,
+                        ),
+                        Text(
+                          "Where To",
+                          style: TextStyle(fontSize: 15, color: priText),
+                        ),
+                        SizedBox(
+                          height: 10,
+                        ),
+                        Provider.of<AppData>(context, listen: false)
+                                    .dropOffLocation ==
+                                null
+                            ? GestureDetector(
+                                onTap: () async {
+                                  var res = await Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => SearchBar()));
+                                  if (res == "obtainDirection") {
+                                    await getPlaceDirction();
+                                  }
+                                },
+                                child: Container(
+                                    width: 350,
+                                    height: 44,
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: TextField(
+                                        enabled: false,
+                                        decoration: InputDecoration(
+                                          prefixIcon: Icon(
+                                            Icons.search,
+                                            color: primary,
+                                          ),
+                                          contentPadding: EdgeInsets.all(10),
+                                          enabledBorder: InputBorder.none,
+                                          disabledBorder: InputBorder.none,
+                                          hintText: 'Search Destination',
+                                          labelStyle: TextStyle(
+                                            fontFamily: 'AlegreyaSansSC',
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w400,
+                                            fontStyle: FontStyle.normal,
+                                            letterSpacing: 0,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    decoration: new BoxDecoration(
+                                      color: Color(0xffffffff),
+                                      borderRadius: BorderRadius.circular(10),
+                                      boxShadow: [
+                                        BoxShadow(
+                                            color: priText,
+                                            offset: Offset(0, 2),
+                                            blurRadius: 4,
+                                            spreadRadius: 0)
+                                      ],
+                                    )),
+                              )
+                            : Column(
+                                children: [
+                                  Row(
+                                    children: [
+                                      Flexible(
+                                        child: Text(
+                                          Provider.of<AppData>(context)
+                                              .dropOffLocation
+                                              .placeName,
+                                          maxLines: 3,
+                                          softWrap: false,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: TextStyle(
+                                              fontSize: 20, color: scText),
+                                        ),
+                                      ),
+                                      TextButton(
+                                        onPressed: () async {
+                                          var res = await Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      SearchBar()));
+                                          if (res == "obtainDirection") {
+                                            await getPlaceDirction();
+                                          }
+                                        },
+                                        child: Icon(
+                                          Icons.edit,
                                           color: primary,
                                         ),
-                                        contentPadding: EdgeInsets.all(10),
-                                        enabledBorder: InputBorder.none,
-                                        disabledBorder: InputBorder.none,
-                                        hintText: 'Search Destination',
-                                        labelStyle: TextStyle(
-                                          fontFamily: 'AlegreyaSansSC',
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w400,
-                                          fontStyle: FontStyle.normal,
-                                          letterSpacing: 0,
+                                      )
+                                    ],
+                                  ),
+                                  Row(
+                                    children: [
+                                      Container(
+                                        height: 90,
+                                        width: 120,
+                                        child: Image.asset(
+                                          "assets/taxi.jpg",
                                         ),
                                       ),
-                                    ),
-                                  ),
-                                  decoration: new BoxDecoration(
-                                    color: Color(0xffffffff),
-                                    borderRadius: BorderRadius.circular(10),
-                                    boxShadow: [
-                                      BoxShadow(
-                                          color: priText,
-                                          offset: Offset(0, 2),
-                                          blurRadius: 4,
-                                          spreadRadius: 0)
+                                      Container(
+                                        width: 220,
+                                        height: 59,
+                                        color: Colors.lightBlueAccent[100],
+                                        padding: EdgeInsets.all(10),
+                                        child: Row(
+                                          children: [
+                                            Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  "Taxi",
+                                                  style: TextStyle(
+                                                      fontFamily: 'OpenSans',
+                                                      fontSize: 20,
+                                                      color: Colors.white),
+                                                ),
+                                                Text(
+                                                  tripDetails != null
+                                                      ? tripDetails.distanceText
+                                                      : "",
+                                                  style: TextStyle(
+                                                      fontFamily: 'OpenSans',
+                                                      fontSize: 13,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      color: Colors.white),
+                                                )
+                                              ],
+                                            ),
+                                            SizedBox(
+                                              width: 70,
+                                            ),
+                                            Expanded(
+                                              child: Text(
+                                                tripDetails != null
+                                                    ? "\Rs. ${AssistantsMethods.calculateTRideFares(tripDetails)}"
+                                                    : "",
+                                                style: TextStyle(
+                                                    fontFamily: 'OpenSans',
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 20,
+                                                    color: Colors.white),
+                                              ),
+                                            )
+                                          ],
+                                        ),
+                                      )
                                     ],
-                                  )),
-                            )
-                          : Column(
-                              children: [
-                                Row(
-                                  children: [
-                                    Text(
-                                      Provider.of<AppData>(context)
-                                          .dropOffLocation
-                                          .placeName,
-                                      style: TextStyle(
-                                          fontSize: 20, color: scText),
-                                    ),
-                                    TextButton(
-                                      onPressed: () async {
-                                        var res = await Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                                builder: (context) =>
-                                                    SearchBar()));
-                                        if (res == "obtainDirection") {
-                                          await getPlaceDirction();
-                                        }
-                                      },
-                                      child: Icon(
-                                        Icons.edit,
-                                        color: primary,
+                                  ),
+                                  SizedBox(
+                                    height: 5,
+                                  ),
+                                  Row(
+                                    children: [
+                                      Icon(
+                                        Icons.monetization_on_outlined,
+                                        size: 30,
+                                        color: priText,
                                       ),
-                                    )
-                                  ],
-                                ),
-                                SizedBox(
-                                  height: 5,
-                                ),
-                                ElevatedButton(
-                                  onPressed: () {},
-                                  child: Text(
-                                    "Confirm Ride",
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontFamily: 'OpenSans',
-                                      fontSize: 15.0,
-                                      fontWeight: FontWeight.bold,
+                                      SizedBox(
+                                        width: 15,
+                                      ),
+                                      Text(
+                                        "Cash",
+                                        style: TextStyle(
+                                            fontSize: 20, color: priText),
+                                      ),
+                                      SizedBox(
+                                        width: 5,
+                                      ),
+                                      Icon(
+                                        Icons.keyboard_arrow_down,
+                                        color: priText,
+                                        size: 20,
+                                      )
+                                    ],
+                                  ),
+                                  SizedBox(
+                                    height: 10,
+                                  ),
+                                  Container(
+                                    margin: EdgeInsets.symmetric(
+                                      horizontal: 100,
+                                    ),
+                                    color: primary,
+                                    child: TextButton(
+                                      onPressed: () {},
+                                      child: Row(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        children: [
+                                          Icon(
+                                            Icons.local_taxi,
+                                            color: Colors.white,
+                                          ),
+                                          SizedBox(
+                                            width: 10,
+                                          ),
+                                          Text(
+                                            "Confirm Ride",
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontFamily: 'OpenSans',
+                                              fontSize: 15.0,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                   ),
-                                ),
-                                SizedBox(
-                                  height: 5,
-                                ),
-                                Divider(
-                                  height: 1,
-                                  color: Colors.amberAccent,
-                                  thickness: 2,
-                                ),
-                              ],
-                            ),
-                      SizedBox(
-                        height: 20,
-                      ),
-                      Provider.of<AppData>(context).dropOffLocation == null
-                          ? Column(
-                              children: [
-                                ListTile(
+                                  SizedBox(
+                                    height: 0,
+                                  ),
+                                ],
+                              ),
+                        SizedBox(
+                          height: 10,
+                        ),
+                        Provider.of<AppData>(context).dropOffLocation == null
+                            ? Column(
+                                children: [
+                                  ListTile(
+                                      title: Row(
+                                        children: [
+                                          Icon(
+                                            Icons.home,
+                                            color: Colors.grey,
+                                            size: 35,
+                                          ),
+                                          SizedBox(
+                                            width: 20,
+                                          ),
+                                          Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                "Add Home ",
+                                                style: TextStyle(
+                                                    fontSize: 20,
+                                                    color: scText),
+                                              ),
+                                              Text(
+                                                "Add your Home Addreas.",
+                                                style: TextStyle(
+                                                    fontSize: 12,
+                                                    color: scText),
+                                              )
+                                            ],
+                                          )
+                                        ],
+                                      ),
+                                      onTap: () {}),
+                                  DividerW(),
+                                  ListTile(
                                     title: Row(
                                       children: [
                                         Icon(
-                                          Icons.home,
+                                          Icons.work,
                                           color: Colors.grey,
                                           size: 35,
                                         ),
@@ -443,12 +557,12 @@ class _MainAppPageState extends State<MainAppPage> {
                                               CrossAxisAlignment.start,
                                           children: [
                                             Text(
-                                              "Add Home ",
+                                              "Add Work ",
                                               style: TextStyle(
                                                   fontSize: 20, color: scText),
                                             ),
                                             Text(
-                                              "Add your Home Addreas.",
+                                              "Add your Office or Work Addreas.",
                                               style: TextStyle(
                                                   fontSize: 12, color: scText),
                                             )
@@ -456,43 +570,13 @@ class _MainAppPageState extends State<MainAppPage> {
                                         )
                                       ],
                                     ),
-                                    onTap: () {}),
-                                DividerW(),
-                                ListTile(
-                                  title: Row(
-                                    children: [
-                                      Icon(
-                                        Icons.work,
-                                        color: Colors.grey,
-                                        size: 35,
-                                      ),
-                                      SizedBox(
-                                        width: 20,
-                                      ),
-                                      Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            "Add Work ",
-                                            style: TextStyle(
-                                                fontSize: 20, color: scText),
-                                          ),
-                                          Text(
-                                            "Add your Office or Work Addreas.",
-                                            style: TextStyle(
-                                                fontSize: 12, color: scText),
-                                          )
-                                        ],
-                                      )
-                                    ],
-                                  ),
-                                  onTap: () {},
-                                )
-                              ],
-                            )
-                          : SizedBox()
-                    ],
+                                    onTap: () {},
+                                  )
+                                ],
+                              )
+                            : SizedBox()
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -527,6 +611,9 @@ class _MainAppPageState extends State<MainAppPage> {
             ));
     var details =
         await AssistantsMethods.getDirectionDetails(pickUpLatng, dropOffLatng);
+    setState(() {
+      tripDetails = details;
+    });
     Navigator.pop(context);
     print("Polylines" + details.encodedPoints);
     PolylinePoints polylinePoints = PolylinePoints();
@@ -551,6 +638,60 @@ class _MainAppPageState extends State<MainAppPage> {
           endCap: Cap.roundCap,
           geodesic: true);
       _polylines.add(polyline);
+    });
+    LatLngBounds latLngBounds;
+    if (pickUpLatng.latitude > dropOffLatng.latitude &&
+        pickUpLatng.longitude > dropOffLatng.longitude) {
+      latLngBounds =
+          LatLngBounds(southwest: dropOffLatng, northeast: pickUpLatng);
+    } else if (pickUpLatng.longitude > dropOffLatng.longitude) {
+      latLngBounds = LatLngBounds(
+          southwest: LatLng(pickUpLatng.latitude, dropOffLatng.longitude),
+          northeast: LatLng(dropOffLatng.latitude, pickUpLatng.longitude));
+    } else if (pickUpLatng.latitude > dropOffLatng.latitude) {
+      latLngBounds = LatLngBounds(
+          southwest: LatLng(dropOffLatng.latitude, pickUpLatng.longitude),
+          northeast: LatLng(pickUpLatng.latitude, dropOffLatng.longitude));
+    } else {
+      latLngBounds =
+          LatLngBounds(southwest: pickUpLatng, northeast: dropOffLatng);
+    }
+    newGoogleMapController
+        .animateCamera(CameraUpdate.newLatLngBounds(latLngBounds, 70));
+
+    setState(() {
+      _marker.add(Marker(
+        markerId: MarkerId("StartLoc"),
+        position: pickUpLatng,
+        infoWindow:
+            InfoWindow(title: intialPos.placeName, snippet: "Your Location"),
+        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRose),
+      ));
+      _marker.add(Marker(
+        markerId: MarkerId("EndLoc"),
+        position: dropOffLatng,
+        infoWindow:
+            InfoWindow(title: finalPos.placeName, snippet: "Your Destination"),
+        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueViolet),
+      ));
+    });
+    setState(() {
+      _circle.add(Circle(
+        circleId: CircleId("pickUpCircle"),
+        fillColor: Colors.blueAccent,
+        center: pickUpLatng,
+        radius: 12,
+        strokeWidth: 4,
+        strokeColor: Colors.blueAccent,
+      ));
+      _circle.add(Circle(
+        circleId: CircleId("dropOffCircle"),
+        fillColor: Colors.amberAccent,
+        center: dropOffLatng,
+        radius: 12,
+        strokeWidth: 4,
+        strokeColor: Colors.amberAccent,
+      ));
     });
   }
 }

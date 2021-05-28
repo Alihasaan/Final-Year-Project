@@ -41,6 +41,7 @@ dependencies:
   intl_phone_number_input: ^0.6.0
   http: ^0.12.1
   flutter_polyline_points: ^0.2.4
+  font_awesome_flutter: ^9.0.0
 
 dev_dependencies:
   flutter_test:
@@ -62,6 +63,7 @@ flutter:
     - assets/google-logo.png
     - assets/g-logo.jpg
     - assets/flag-wave-250.png
+    - assets/taxi.jpg
 
   # To add assets to your application, add an assets section, like this:
   # assets:

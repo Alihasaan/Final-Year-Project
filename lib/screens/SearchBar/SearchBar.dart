@@ -171,7 +171,7 @@ class _SearchBarState extends State<SearchBar> {
                 ),
               ),
             ),
-            placePredictionList.length > 0
+            placePredictionList.length > 1
                 ? Padding(
                     padding: EdgeInsets.symmetric(
                       vertical: 5,

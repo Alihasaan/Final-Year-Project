@@ -10,13 +10,18 @@ import 'package:provider/provider.dart';
 class AssistantsMethods {
   static Future<String> searchCoordinatesAddress(
       Position position, context) async {
+    String st1, st2, st3;
     String placeAddress = "Null";
     String url =
         "https://maps.googleapis.com/maps/api/geocode/json?latlng=${position.latitude},${position.longitude}&key=$GoogleMapsAPI";
 
     var response = await RequestAssistant.getRequest(url);
     if (response != "failed") {
-      placeAddress = response['results'][0]["formatted_address"];
+      st1 = response['results'][0]["address_components"][0]['long_name'];
+      st2 = response['results'][0]["address_components"][1]['long_name'];
+      st3 = response['results'][0]["address_components"][2]['long_name'];
+
+      placeAddress = st1 + ", " + st2 + ", " + st3;
 
       Address userPickLoc = new Address();
       userPickLoc.latitude = position.latitude;
@@ -52,5 +57,15 @@ class AssistantsMethods {
     print("!-------------Polylines ---------------------!");
     print(directionDetails.encodedPoints);
     return directionDetails;
+  }
+
+  static int calculateTRideFares(DriectionDetails driectionDetails) {
+    double timeTraveledFare = (driectionDetails.durationValue / 60) * 0.05;
+    double distanceTraveledFare =
+        (driectionDetails.distanceValue / 1000) * 0.10;
+    double totalFareAmount = timeTraveledFare + distanceTraveledFare;
+    double totalInRupees;
+    totalInRupees = totalFareAmount * 155;
+    return totalInRupees.truncate();
   }
 }
