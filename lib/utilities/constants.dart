@@ -22,7 +22,7 @@ final kBoxDecorationStyle = BoxDecoration(
     ),
   ],
 );
-final Color primary = Colors.lightBlue;
+const Color primary = Colors.lightBlue;
 final Color priText = Colors.black45;
 final Color scText = Colors.grey[800];
 final Color title = Colors.white;
