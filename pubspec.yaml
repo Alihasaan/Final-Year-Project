@@ -69,7 +69,7 @@ flutter:
   fonts:
   - family: Signatra
     fonts:
-    - asset: Signatra.ttf
+    - asset: assets/Signatra.ttf
 
   # To add assets to your application, add an assets section, like this:
   # assets:

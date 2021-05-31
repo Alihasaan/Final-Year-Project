@@ -72,7 +72,7 @@ class _MainAppPageState extends State<MainAppPage> {
     ];
 
     const colorizeTextStyle = TextStyle(
-        fontSize: 45.0, fontFamily: 'Signatra', fontWeight: FontWeight.bold);
+        fontSize: 50.0, fontFamily: 'Signatra', fontWeight: FontWeight.w200);
     return Scaffold(
       appBar: AppBar(
         backgroundColor: primary,
@@ -631,36 +631,39 @@ class _MainAppPageState extends State<MainAppPage> {
                     ],
                   ),
                   child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       SizedBox(
                         height: 12,
                       ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 20),
-                        child: SizedBox(
-                          width: 250.0,
-                          child: AnimatedTextKit(
-                            animatedTexts: [
-                              ColorizeAnimatedText(
-                                'Confirming Ride',
-                                textStyle: colorizeTextStyle,
-                                colors: colorizeColors,
-                              ),
-                              ColorizeAnimatedText(
-                                'Please Wait',
-                                textStyle: colorizeTextStyle,
-                                colors: colorizeColors,
-                              ),
-                              ColorizeAnimatedText(
-                                'Finding Drivers',
-                                textStyle: colorizeTextStyle,
-                                colors: colorizeColors,
-                              ),
-                            ],
-                            isRepeatingAnimation: true,
-                            onTap: () {
-                              print("Tap Event");
-                            },
+                      Center(
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 100),
+                          child: SizedBox(
+                            width: double.infinity,
+                            child: AnimatedTextKit(
+                              animatedTexts: [
+                                ColorizeAnimatedText(
+                                  'Confirming Ride...',
+                                  textStyle: colorizeTextStyle,
+                                  colors: colorizeColors,
+                                ),
+                                ColorizeAnimatedText(
+                                  'Please Wait...',
+                                  textStyle: colorizeTextStyle,
+                                  colors: colorizeColors,
+                                ),
+                                ColorizeAnimatedText(
+                                  'Finding Drivers...',
+                                  textStyle: colorizeTextStyle,
+                                  colors: colorizeColors,
+                                ),
+                              ],
+                              isRepeatingAnimation: true,
+                              onTap: () {
+                                print("Tap Event");
+                              },
+                            ),
                           ),
                         ),
                       ),
