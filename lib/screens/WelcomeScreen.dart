@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:onlineTaxiApp/Models/users_model.dart';
 import 'package:onlineTaxiApp/screens/HomeScreen.dart';
+import 'package:rflutter_alert/rflutter_alert.dart';
 import '../auth_services.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
@@ -15,10 +17,12 @@ class WelcomeScreen extends StatefulWidget {
 
 class _WelcomeScreenState extends State<WelcomeScreen> {
   bool showNum = true;
+  bool phoneNumber;
   String user;
   bool proceeing = false;
   final _formKey = GlobalKey<FormState>();
-
+  UserModel currentUser = UserModel();
+  String PhotoURL = FirebaseAuth.instance.currentUser.photoURL.toString();
   TextEditingController phonectrl = new TextEditingController();
 
   final db = FirebaseFirestore.instance;
@@ -66,8 +70,8 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                 end: Alignment.bottomCenter,
                 colors: [
                   Colors.cyan,
-                  Colors.cyanAccent,
-                  Colors.lightBlue,
+                  Colors.cyan,
+                  Colors.cyan,
                   Colors.lightBlueAccent,
                 ],
                 stops: [0.1, 0.4, 0.7, 0.9],
@@ -82,10 +86,9 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                   CircleAvatar(
                     radius: 60,
                     backgroundColor: Colors.green[50],
-                    backgroundImage: NetworkImage(
-                        FirebaseAuth.instance.currentUser.photoURL != null
-                            ? FirebaseAuth.instance.currentUser.photoURL
-                            : photoURL),
+                    backgroundImage: NetworkImage(PhotoURL != null
+                        ? PhotoURL.replaceAll("s96-c", "s400-c")
+                        : photoURL),
                   ),
                   SizedBox(height: 20.0),
                   Text(
@@ -139,7 +142,13 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     );
   }
 
-  Future getuser() async {}
+  void getuser(String phone) {
+    currentUser.userID = FirebaseAuth.instance.currentUser.uid;
+    currentUser.userName = FirebaseAuth.instance.currentUser.displayName;
+    currentUser.userPhoneno = phone;
+    currentUser.userEmail = FirebaseAuth.instance.currentUser.email;
+    phoneNumber = true;
+  }
 
   StreamBuilder<QuerySnapshot> showNumber() {
     return StreamBuilder(
@@ -153,11 +162,14 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
             onPressed: () {
               setState(() {
                 showNum = false;
+                phoneNumber = false;
               });
             },
-            child: Text("Add Phone No", style: TextStyle(color: priText)),
+            child: Text("Add Phone No.", style: TextStyle(color: priText)),
           );
         } else {
+          getuser(snapshot.data.docs[0]['phoneNo']);
+
           return showNum == true
               ? Text(
                   snapshot.data.docs[0]['phoneNo'],
@@ -185,7 +197,6 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
         Container(
           margin: EdgeInsets.only(top: 25),
           alignment: Alignment.centerLeft,
-          decoration: kBoxDecorationStyle,
           height: 60.0,
           width: 75,
           child: Center(
@@ -240,14 +251,10 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
               height: 60.0,
               width: 50,
               child: Center(
-                child: Text(
-                  "Go",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontFamily: 'OpenSans',
-                  ),
-                ),
-              ),
+                  child: Icon(
+                Icons.check_outlined,
+                color: primary,
+              )),
             ))
       ],
     );
@@ -260,8 +267,30 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
       child: RaisedButton(
           elevation: 5.0,
           onPressed: () => {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => MainAppPage()))
+                phoneNumber == true
+                    ? Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => MainAppPage(
+                                  currentUser: currentUser,
+                                )))
+                    : Alert(
+                        context: context,
+                        image: Icon(
+                          Icons.error_outline,
+                          size: 50,
+                        ),
+                        title: "Phone No. Required",
+                        content: Padding(
+                          padding: const EdgeInsets.all(10.0),
+                          child: Text(
+                              "Please enter your Phone Number to Continue.",
+                              style: TextStyle(
+                                  color: Colors.black38,
+                                  fontFamily: 'OpenSans',
+                                  fontSize: 15.0,
+                                  fontWeight: FontWeight.bold)),
+                        )).show()
               },
           padding: EdgeInsets.all(15.0),
           shape: RoundedRectangleBorder(
@@ -325,7 +354,6 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
           SizedBox(height: 10.0),
           Container(
             alignment: Alignment.centerLeft,
-            decoration: kBoxDecorationStyle,
             height: 60.0,
             width: 220,
             child: TextFormField(
@@ -338,7 +366,9 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                 fontFamily: 'OpenSans',
               ),
               decoration: InputDecoration(
-                border: InputBorder.none,
+                border: new OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide: new BorderSide(color: primary)),
                 contentPadding: EdgeInsets.all(14.0),
                 hintText: 'Enter your Phone No.',
                 hintStyle: kHintTextStyle,

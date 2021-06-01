@@ -9,6 +9,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:onlineTaxiApp/Assistants/assistantMethods.dart';
 import 'package:onlineTaxiApp/DataHandler/appData.dart';
 import 'package:onlineTaxiApp/Models/directionDetails.dart';
+import 'package:onlineTaxiApp/Models/users_model.dart';
 import 'package:onlineTaxiApp/screens/Divider.dart';
 import 'package:onlineTaxiApp/screens/SearchBar/SearchBar.dart';
 import 'package:onlineTaxiApp/utilities/configMaps.dart';
@@ -18,6 +19,9 @@ import 'package:onlineTaxiApp/utilities/constants.dart';
 import 'package:provider/provider.dart';
 
 class MainAppPage extends StatefulWidget {
+  final UserModel currentUser;
+
+  const MainAppPage({Key key, this.currentUser}) : super(key: key);
   @override
   _MainAppPageState createState() => _MainAppPageState();
 }
@@ -62,8 +66,12 @@ class _MainAppPageState extends State<MainAppPage> {
 
   @override
   Widget build(BuildContext context) {
+    print("!---------------" +
+        widget.currentUser.userName +
+        "-----" +
+        widget.currentUser.userPhoneno);
+
     const colorizeColors = [
-      primary,
       Colors.greenAccent,
       Colors.purple,
       Colors.lightBlueAccent,
@@ -72,7 +80,10 @@ class _MainAppPageState extends State<MainAppPage> {
     ];
 
     const colorizeTextStyle = TextStyle(
-        fontSize: 50.0, fontFamily: 'Signatra', fontWeight: FontWeight.w200);
+      fontSize: 55.0,
+      fontFamily: 'Signatra',
+      fontWeight: FontWeight.normal,
+    );
     return Scaffold(
       appBar: AppBar(
         backgroundColor: primary,
@@ -101,6 +112,8 @@ class _MainAppPageState extends State<MainAppPage> {
                       backgroundImage: NetworkImage(
                           FirebaseAuth.instance.currentUser.photoURL != null
                               ? FirebaseAuth.instance.currentUser.photoURL
+                                  .toString()
+                                  .replaceAll("s96-c", "s400-c")
                               : photoURL),
                     ),
                     SizedBox(
@@ -217,7 +230,7 @@ class _MainAppPageState extends State<MainAppPage> {
       ),
       body: Stack(children: [
         GoogleMap(
-          padding: EdgeInsets.only(bottom: 330.0),
+          padding: EdgeInsets.only(bottom: requestRide == false ? 330.0 : 240),
           myLocationEnabled: true,
           compassEnabled: false,
           tiltGesturesEnabled: false,
@@ -262,11 +275,12 @@ class _MainAppPageState extends State<MainAppPage> {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 24, vertical: 18),
                       child: SingleChildScrollView(
+                        physics: BouncingScrollPhysics(),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             SizedBox(
-                              height: 6,
+                              height: 1,
                             ),
                             Provider.of<AppData>(context).pickUpLocation == null
                                 ? SizedBox(
@@ -294,14 +308,14 @@ class _MainAppPageState extends State<MainAppPage> {
                                     ],
                                   ),
                             SizedBox(
-                              height: 10,
+                              height: 8,
                             ),
                             Text(
                               "Where To",
                               style: TextStyle(fontSize: 15, color: priText),
                             ),
                             SizedBox(
-                              height: 10,
+                              height: 0,
                             ),
                             Provider.of<AppData>(context, listen: false)
                                         .dropOffLocation ==
@@ -329,8 +343,7 @@ class _MainAppPageState extends State<MainAppPage> {
                                                 Icons.search,
                                                 color: primary,
                                               ),
-                                              contentPadding:
-                                                  EdgeInsets.all(10),
+                                              contentPadding: EdgeInsets.all(8),
                                               enabledBorder: InputBorder.none,
                                               disabledBorder: InputBorder.none,
                                               hintText: 'Search Destination',
@@ -462,7 +475,7 @@ class _MainAppPageState extends State<MainAppPage> {
                                         children: [
                                           Icon(
                                             Icons.monetization_on_outlined,
-                                            size: 30,
+                                            size: 22,
                                             color: priText,
                                           ),
                                           SizedBox(
@@ -471,7 +484,7 @@ class _MainAppPageState extends State<MainAppPage> {
                                           Text(
                                             "Cash",
                                             style: TextStyle(
-                                                fontSize: 20, color: priText),
+                                                fontSize: 17, color: priText),
                                           ),
                                           SizedBox(
                                             width: 5,
@@ -484,11 +497,13 @@ class _MainAppPageState extends State<MainAppPage> {
                                         ],
                                       ),
                                       SizedBox(
-                                        height: 10,
+                                        height: 5,
                                       ),
                                       Container(
+                                        width: 160,
+                                        height: 50,
                                         margin: EdgeInsets.symmetric(
-                                          horizontal: 100,
+                                          horizontal: 90,
                                         ),
                                         color: primary,
                                         child: TextButton(
@@ -502,7 +517,7 @@ class _MainAppPageState extends State<MainAppPage> {
                                                 color: Colors.white,
                                               ),
                                               SizedBox(
-                                                width: 10,
+                                                width: 11,
                                               ),
                                               TextButton(
                                                 onPressed: () {
@@ -530,7 +545,7 @@ class _MainAppPageState extends State<MainAppPage> {
                                     ],
                                   ),
                             SizedBox(
-                              height: 10,
+                              height: 8,
                             ),
                             Provider.of<AppData>(context).dropOffLocation ==
                                     null
@@ -616,7 +631,7 @@ class _MainAppPageState extends State<MainAppPage> {
                 right: 0,
                 bottom: 0,
                 child: Container(
-                  height: 330,
+                  height: 230,
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.only(
@@ -630,21 +645,23 @@ class _MainAppPageState extends State<MainAppPage> {
                           offset: Offset(0.7, 0.7))
                     ],
                   ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      SizedBox(
-                        height: 12,
-                      ),
-                      Center(
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 100),
+                  child: Padding(
+                    padding: const EdgeInsets.all(15.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        SizedBox(
+                          height: 12,
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(left: 20),
                           child: SizedBox(
-                            width: double.infinity,
+                            width: 250,
                             child: AnimatedTextKit(
+                              totalRepeatCount: 5,
                               animatedTexts: [
                                 ColorizeAnimatedText(
-                                  'Confirming Ride...',
+                                  'Confirming Ride',
                                   textStyle: colorizeTextStyle,
                                   colors: colorizeColors,
                                 ),
@@ -654,7 +671,7 @@ class _MainAppPageState extends State<MainAppPage> {
                                   colors: colorizeColors,
                                 ),
                                 ColorizeAnimatedText(
-                                  'Finding Drivers...',
+                                  'Finding Drivers',
                                   textStyle: colorizeTextStyle,
                                   colors: colorizeColors,
                                 ),
@@ -666,8 +683,30 @@ class _MainAppPageState extends State<MainAppPage> {
                             ),
                           ),
                         ),
-                      ),
-                    ],
+                        SizedBox(
+                          height: 20,
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(right: 20.0),
+                          child: IconButton(
+                              icon: Icon(
+                                Icons.cancel_sharp,
+                                size: 60,
+                                color: primary,
+                              ),
+                              onPressed: () {
+                                setState(() {
+                                  requestRide = false;
+                                });
+                              }),
+                        ),
+                        SizedBox(
+                          height: 35,
+                        ),
+                        Text("    Cancel Ride ",
+                            style: TextStyle(fontSize: 14, color: scText))
+                      ],
+                    ),
                   ),
                 ),
               )
@@ -694,7 +733,7 @@ class _MainAppPageState extends State<MainAppPage> {
                     SizedBox(
                       width: 20,
                     ),
-                    Text("Please Wait........ ")
+                    Text("Please Wait.......")
                   ],
                 ),
               ),

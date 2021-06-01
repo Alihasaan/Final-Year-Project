@@ -180,7 +180,6 @@ class _SearchBarState extends State<SearchBar> {
                     child: ListView.separated(
                         shrinkWrap: true,
                         physics: ClampingScrollPhysics(),
-                        padding: EdgeInsets.all(0),
                         itemBuilder: (context, index) {
                           return PredictionTitle(
                             placePredictions: placePredictionList[index],
@@ -250,12 +249,16 @@ class PredictionTitle extends StatelessWidget {
             color: Colors.amber[400],
           ),
           title: Text(
-            placePredictions.main_text,
+            placePredictions.main_text == null
+                ? ""
+                : placePredictions.main_text,
             overflow: TextOverflow.ellipsis,
             style: TextStyle(fontSize: 20, color: Colors.grey[700]),
           ),
           subtitle: Text(
-            placePredictions.secondary_text,
+            placePredictions.secondary_text == null
+                ? ""
+                : placePredictions.secondary_text,
             overflow: TextOverflow.ellipsis,
             style: TextStyle(fontSize: 20, color: priText),
           ),
