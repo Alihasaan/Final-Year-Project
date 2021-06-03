@@ -43,6 +43,7 @@ dependencies:
   flutter_polyline_points: ^0.2.4
   font_awesome_flutter: ^9.0.0
   animated_text_kit: ^4.2.1
+  firebase_database: ^6.0.0
 
 dev_dependencies:
   flutter_test:
@@ -65,6 +66,7 @@ flutter:
     - assets/g-logo.jpg
     - assets/flag-wave-250.png
     - assets/taxi.jpg
+    - assets/user_profile.png
 
   fonts:
   - family: Signatra

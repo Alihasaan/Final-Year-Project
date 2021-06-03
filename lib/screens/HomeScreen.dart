@@ -14,6 +14,7 @@ import 'package:onlineTaxiApp/screens/Divider.dart';
 import 'package:onlineTaxiApp/screens/SearchBar/SearchBar.dart';
 import 'package:onlineTaxiApp/utilities/configMaps.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:onlineTaxiApp/utilities/constants.dart';
 import 'package:provider/provider.dart';
@@ -30,6 +31,8 @@ class _MainAppPageState extends State<MainAppPage> {
   Completer<GoogleMapController> _googleMapController = Completer();
   GoogleMapController newGoogleMapController;
   final db = FirebaseFirestore.instance;
+  final fb = FirebaseDatabase.instance;
+
   Position currentPosition;
   LatLng currenLocation = LatLng(33.65258674284576, 73.07084250411232);
   LatLng destLocation = LatLng(33.69817543885961, 73.07077813109619);
@@ -109,12 +112,15 @@ class _MainAppPageState extends State<MainAppPage> {
                     CircleAvatar(
                       radius: 35,
                       backgroundColor: primary,
-                      backgroundImage: NetworkImage(
+                      backgroundImage:
                           FirebaseAuth.instance.currentUser.photoURL != null
-                              ? FirebaseAuth.instance.currentUser.photoURL
+                              ? NetworkImage(FirebaseAuth
+                                  .instance.currentUser.photoURL
                                   .toString()
-                                  .replaceAll("s96-c", "s400-c")
-                              : photoURL),
+                                  .replaceAll("s96-c", "s400-c"))
+                              : AssetImage(
+                                  "assets/user_profile.png",
+                                ),
                     ),
                     SizedBox(
                       height: 5,
@@ -521,6 +527,7 @@ class _MainAppPageState extends State<MainAppPage> {
                                               ),
                                               TextButton(
                                                 onPressed: () {
+                                                  sendRideRequest();
                                                   setState(() {
                                                     requestRide = true;
                                                   });
@@ -698,6 +705,7 @@ class _MainAppPageState extends State<MainAppPage> {
                                 setState(() {
                                   requestRide = false;
                                 });
+                                ;
                               }),
                         ),
                         SizedBox(
@@ -822,5 +830,50 @@ class _MainAppPageState extends State<MainAppPage> {
         strokeColor: Colors.amberAccent,
       ));
     });
+  }
+
+  void sendRideRequest() {
+    final DatabaseReference rideRequestRef = fb.reference();
+    /* FirebaseDatabase.instance
+        .reference()
+        .child("Rides")
+        .once()
+        .then((DataSnapshot dataSnapshot) {
+      if (dataSnapshot.value != null) {
+        print("!--------------" + dataSnapshot.value["Rider_name"]);
+      } else {
+        print(dataSnapshot.value);
+      }
+    });*/
+
+    var pickUp = Provider.of<AppData>(context, listen: false).pickUpLocation;
+    var dropOff = Provider.of<AppData>(context, listen: false).dropOffLocation;
+    Map pickUpLocMap = {
+      "latitude": pickUp.latitude.toString(),
+      "longitude": pickUp.longitude.toString(),
+    };
+    Map dropOffLocMap = {
+      "latitude": dropOff.latitude.toString(),
+      "longitude": dropOff.longitude.toString(),
+    };
+    Map rideInfoMap = {
+      "driver_id": "waiting",
+      "pickup": pickUpLocMap,
+      "dropoff": dropOffLocMap,
+      "created_at": DateTime.now().toString(),
+      "userid": widget.currentUser.userID,
+      "username": widget.currentUser.userName,
+      "userphone": widget.currentUser.userPhoneno,
+      "pickup_address": pickUp.placeName,
+      "dropoff_address": dropOff.placeName,
+    };
+    print(rideRequestRef.toString());
+    print(rideInfoMap);
+    try {
+      //rideRequestRef.child("Ride Requests").push();
+      rideRequestRef.child("Ride Requests").set(rideInfoMap);
+    } on FirebaseException catch (e) {
+      print(e.message);
+    }
   }
 }

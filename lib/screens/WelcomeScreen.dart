@@ -18,11 +18,11 @@ class WelcomeScreen extends StatefulWidget {
 class _WelcomeScreenState extends State<WelcomeScreen> {
   bool showNum = true;
   bool phoneNumber;
-  String user;
+
   bool proceeing = false;
   final _formKey = GlobalKey<FormState>();
   UserModel currentUser = UserModel();
-  String PhotoURL = FirebaseAuth.instance.currentUser.photoURL.toString();
+  String PhotoURL = FirebaseAuth.instance.currentUser.photoURL;
   TextEditingController phonectrl = new TextEditingController();
 
   final db = FirebaseFirestore.instance;
@@ -86,9 +86,11 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                   CircleAvatar(
                     radius: 60,
                     backgroundColor: Colors.green[50],
-                    backgroundImage: NetworkImage(PhotoURL != null
-                        ? PhotoURL.replaceAll("s96-c", "s400-c")
-                        : photoURL),
+                    backgroundImage: PhotoURL != null
+                        ? NetworkImage(PhotoURL.replaceAll("s96-c", "s400-c"))
+                        : AssetImage(
+                            "assets/user_profile.png",
+                          ),
                   ),
                   SizedBox(height: 20.0),
                   Text(
