@@ -10,6 +10,7 @@ import 'package:onlineTaxiApp/Assistants/assistantMethods.dart';
 import 'package:onlineTaxiApp/DataHandler/appData.dart';
 import 'package:onlineTaxiApp/Models/directionDetails.dart';
 import 'package:onlineTaxiApp/Models/users_model.dart';
+import 'package:onlineTaxiApp/main.dart';
 import 'package:onlineTaxiApp/screens/Divider.dart';
 import 'package:onlineTaxiApp/screens/SearchBar/SearchBar.dart';
 import 'package:onlineTaxiApp/utilities/configMaps.dart';
@@ -30,8 +31,6 @@ class MainAppPage extends StatefulWidget {
 class _MainAppPageState extends State<MainAppPage> {
   Completer<GoogleMapController> _googleMapController = Completer();
   GoogleMapController newGoogleMapController;
-  final db = FirebaseFirestore.instance;
-  final fb = FirebaseDatabase.instance;
 
   Position currentPosition;
   LatLng currenLocation = LatLng(33.65258674284576, 73.07084250411232);
@@ -722,6 +721,7 @@ class _MainAppPageState extends State<MainAppPage> {
     );
   }
 
+  // ignore: missing_return
   Future<Widget> getPlaceDirction() async {
     var intialPos = Provider.of<AppData>(context, listen: false).pickUpLocation;
     var finalPos = Provider.of<AppData>(context, listen: false).dropOffLocation;
@@ -833,7 +833,6 @@ class _MainAppPageState extends State<MainAppPage> {
   }
 
   void sendRideRequest() {
-    final DatabaseReference rideRequestRef = fb.reference();
     /* FirebaseDatabase.instance
         .reference()
         .child("Rides")
@@ -867,13 +866,12 @@ class _MainAppPageState extends State<MainAppPage> {
       "pickup_address": pickUp.placeName,
       "dropoff_address": dropOff.placeName,
     };
-    print(rideRequestRef.toString());
-    print(rideInfoMap);
+
+    /* print(db);
     try {
-      //rideRequestRef.child("Ride Requests").push();
-      rideRequestRef.child("Ride Requests").set(rideInfoMap);
+      db.child("Ride_Requests").set(rideInfoMap);
     } on FirebaseException catch (e) {
       print(e.message);
-    }
+    }*/
   }
 }

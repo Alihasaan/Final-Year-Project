@@ -1,9 +1,11 @@
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/services.dart';
 import 'package:onlineTaxiApp/DataHandler/appData.dart';
 import 'package:onlineTaxiApp/auth_services.dart';
+import 'package:onlineTaxiApp/utilities/configMaps.dart';
 import 'package:onlineTaxiApp/utilities/constants.dart';
 import 'package:provider/provider.dart';
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
@@ -12,10 +14,12 @@ import 'screens/WelcomeScreen.dart';
 import 'package:rflutter_alert/rflutter_alert.dart';
 import 'package:easy_loader/easy_loader.dart';
 
+DatabaseReference db;
 Future<void> main() async {
   try {
     WidgetsFlutterBinding.ensureInitialized();
-    await Firebase.initializeApp();
+    final FirebaseApp app = await Firebase.initializeApp();
+    db = FirebaseDatabase(app: app).reference();
   } on FirebaseException catch (e) {
     print(e.message);
   }
@@ -27,6 +31,7 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+    setData();
     return ChangeNotifierProvider(
       create: (context) => AppData(),
       child: MultiProvider(
@@ -59,6 +64,17 @@ class MyApp extends StatelessWidget {
             ),
           )),
     );
+  }
+
+  void setData() async {
+    try {
+      db
+          .child("Ride_Requests")
+          .set({"driver_id": "waiting", "pickup": "ISB", "dropoff": "RWP"});
+      print("!------------------------------------------");
+    } catch (e) {
+      print(e);
+    }
   }
 }
 
