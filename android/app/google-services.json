@@ -23,11 +23,40 @@
           }
         },
         {
-          "client_id": "747341693910-o1r6se1gk0d6ssgkg4eur3pjqtc6b7pg.apps.googleusercontent.com",
+          "client_id": "747341693910-4etv88lbd6ik0f4dsaatrtjcl0mvb2ng.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAJ4KUrnWB0QGsOaSzRYMEJIpANatd-EiQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "747341693910-4etv88lbd6ik0f4dsaatrtjcl0mvb2ng.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:747341693910:android:05ef80d58d435ad6c61a77",
+        "android_client_info": {
+          "package_name": "com.example.ots_driver_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "747341693910-7g2bv911e1nnfemj52ms4gdahd3odgqd.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.example.onlineTaxiApp",
-            "certificate_hash": "ce0269dbf19697a311a88fc10cdb8ccc65cd3efe"
+            "package_name": "com.example.ots_driver_app",
+            "certificate_hash": "e973b5616cc2b435647c25b3b07cdc022126cc47"
           }
         },
         {

@@ -1,4 +1,3 @@
-import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -12,9 +11,9 @@ import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'screens/WelcomeScreen.dart';
 import 'package:rflutter_alert/rflutter_alert.dart';
-import 'package:easy_loader/easy_loader.dart';
+import 'package:firebase_database/firebase_database.dart';
 
-DatabaseReference db;
+late final DatabaseReference db;
 Future<void> main() async {
   try {
     WidgetsFlutterBinding.ensureInitialized();
@@ -31,68 +30,28 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    setData();
     return ChangeNotifierProvider(
-      create: (context) => AppData(),
-      child: MultiProvider(
-          providers: [
-            Provider<AuthService>(
-              create: (_) => AuthService(FirebaseAuth.instance),
+        create: (context) => AppData(),
+        child: GestureDetector(
+          onTap: () {
+            FocusScopeNode currentFocus = FocusScope.of(context);
+            if (!currentFocus.hasPrimaryFocus) {
+              currentFocus.unfocus();
+            }
+          },
+          child: MaterialApp(
+            title: 'Online Taxi Ap',
+            theme: ThemeData(
+              primarySwatch: Colors.blue,
             ),
-            StreamProvider(
-              create: (context) => context.read<AuthService>().authStateChanges,
-            )
-          ],
-          child: GestureDetector(
-            onTap: () {
-              FocusScopeNode currentFocus = FocusScope.of(context);
-              if (!currentFocus.hasPrimaryFocus) {
-                currentFocus.unfocus();
-              }
-            },
-            child: MaterialApp(
-              title: 'Online Taxi Ap',
-              theme: ThemeData(
-                primarySwatch: Colors.blue,
-              ),
-              home: Scaffold(
-                body: Center(
-                    child: Container(
-                  child: AuthWrapper(),
-                )),
-              ),
+            home: Scaffold(
+              body: Center(
+                  child: Container(
+                child: AuthService(FirebaseAuth.instance).handleAuth(),
+              )),
             ),
-          )),
-    );
-  }
-
-  void setData() async {
-    try {
-      db
-          .child("Ride_Requests")
-          .set({"driver_id": "waiting", "pickup": "ISB", "dropoff": "RWP"});
-      print("!------------------------------------------");
-    } catch (e) {
-      print(e);
-    }
-  }
-}
-
-class AuthWrapper extends StatefulWidget {
-  @override
-  _AuthWrapperState createState() => _AuthWrapperState();
-}
-
-class _AuthWrapperState extends State<AuthWrapper> {
-  @override
-  Widget build(BuildContext context) {
-    final firebaseUser = context.watch<User>();
-
-    if (firebaseUser != null) {
-      return WelcomeScreen();
-    } else {
-      return LogInSignUp();
-    }
+          ),
+        ));
   }
 }
 
@@ -103,7 +62,7 @@ class LogInSignUp extends StatefulWidget {
 
 class _LogInSignUpState extends State<LogInSignUp> {
   @override
-  TextEditingController emailctrl, passctrl, namectrl, phonectrl;
+  TextEditingController? emailctrl, passctrl, namectrl, phonectrl;
   TextEditingController emailFctrl = new TextEditingController();
   TextEditingController emailSignUpctrl = new TextEditingController();
   TextEditingController errorControl = new TextEditingController();
@@ -112,8 +71,8 @@ class _LogInSignUpState extends State<LogInSignUp> {
   bool processing = false;
   bool clicked = false;
 
-  String Cerror;
-  FirebaseAuth auth;
+  String? Cerror;
+  FirebaseAuth? auth;
   @override
   void initState() {
     // TODO: implement initState
@@ -206,9 +165,9 @@ class _LogInSignUpState extends State<LogInSignUp> {
     await context
         .read<AuthService>()
         .signUp(
-          emailctrl.text,
-          passctrl.text,
-          namectrl.text,
+          emailctrl!.text,
+          passctrl!.text,
+          namectrl!.text,
         )
         .then((value) => setState(() {
               Cerror = value;
@@ -239,7 +198,7 @@ class _LogInSignUpState extends State<LogInSignUp> {
     });
 
     await AuthService(FirebaseAuth.instance)
-        .signIn(emailctrl.text, passctrl.text)
+        .signIn(emailctrl!.text, passctrl!.text)
         .then((value) => setState(() {
               Cerror = value;
             }));
@@ -265,7 +224,7 @@ class _LogInSignUpState extends State<LogInSignUp> {
             ),
             Expanded(
               child: AutoSizeText(
-                Cerror,
+                Cerror!,
                 maxLines: 3,
               ),
             ),
@@ -317,9 +276,9 @@ class _LogInSignUpState extends State<LogInSignUp> {
                     FlatButton(
                       onPressed: () => {
                         changeState(),
-                        emailctrl.text = "",
-                        namectrl.text = "",
-                        passctrl.text = ""
+                        emailctrl!.text = "",
+                        namectrl!.text = "",
+                        passctrl!.text = ""
                       },
                       child: Text(
                         'SIGN UP',
@@ -451,7 +410,11 @@ class _LogInSignUpState extends State<LogInSignUp> {
                   primaryColorDark: Colors.red,
                 ),
                 child: new TextFormField(
-                  validator: EmailValidator.validate,
+                  validator: (value) {
+                    if (value!.isEmpty) {
+                      return "Email Can not be empty.";
+                    }
+                  },
                   controller: emailctrl,
                   keyboardType: TextInputType.emailAddress,
                   decoration: new InputDecoration(
@@ -487,7 +450,11 @@ class _LogInSignUpState extends State<LogInSignUp> {
                     child: new TextFormField(
                       obscureText: _obscureText,
                       controller: passctrl,
-                      validator: PasswordValidator.validate,
+                      validator: (value) {
+                        if (value!.isEmpty) {
+                          return "Password Can not be empty.";
+                        }
+                      },
                       decoration: new InputDecoration(
                           border: new OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10),
@@ -529,7 +496,8 @@ class _LogInSignUpState extends State<LogInSignUp> {
                       minWidth: 130,
                       height: 45,
                       onPressed: () => {
-                            if (_formKey.currentState.validate()) {userSignIn()}
+                            if (_formKey.currentState!.validate())
+                              {userSignIn()}
                           },
                       child: processing == false
                           ? Text(
@@ -611,7 +579,15 @@ class _LogInSignUpState extends State<LogInSignUp> {
                   primaryColorDark: Colors.red,
                 ),
                 child: new TextFormField(
-                  validator: NameValidator.validate,
+                  validator: (value) {
+                    if (value!.isEmpty) {
+                      return "Name Can not be empty.";
+                    } else if (value.length <= 2) {
+                      return "Name too Short";
+                    } else if (value.length > 15) {
+                      return "Name too Long";
+                    }
+                  },
                   controller: namectrl,
                   decoration: new InputDecoration(
                       border: new OutlineInputBorder(
@@ -641,7 +617,11 @@ class _LogInSignUpState extends State<LogInSignUp> {
                   primaryColorDark: Colors.red,
                 ),
                 child: new TextFormField(
-                  validator: EmailValidator.validate,
+                  validator: (value) {
+                    if (value!.isEmpty) {
+                      return "Email Can not be empty.";
+                    }
+                  },
                   controller: emailctrl,
                   keyboardType: TextInputType.emailAddress,
                   decoration: new InputDecoration(
@@ -677,7 +657,13 @@ class _LogInSignUpState extends State<LogInSignUp> {
                     child: new TextFormField(
                       obscureText: _obscureText,
                       controller: passctrl,
-                      validator: PasswordValidator.validate,
+                      validator: (value) {
+                        if (value!.isEmpty) {
+                          return "Password Can not be empty.";
+                        } else if (value.length < 8) {
+                          return "Password too short. ";
+                        }
+                      },
                       decoration: new InputDecoration(
                           border: new OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10),
@@ -710,7 +696,7 @@ class _LogInSignUpState extends State<LogInSignUp> {
                   minWidth: 130,
                   height: 45,
                   onPressed: () => {
-                        if (_formKey.currentState.validate()) {registerUser()}
+                        if (_formKey.currentState!.validate()) {registerUser()}
                       },
                   child: processing == false
                       ? Text(

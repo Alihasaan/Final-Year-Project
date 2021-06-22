@@ -1,15 +1,30 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:onlineTaxiApp/main.dart';
+import 'package:onlineTaxiApp/screens/WelcomeScreen.dart';
 
 class AuthService {
+  handleAuth() {
+    return StreamBuilder(
+        stream: FirebaseAuth.instance.authStateChanges(),
+        builder: (BuildContext context, snapshot) {
+          if (snapshot.hasData) {
+            return WelcomeScreen();
+          } else {
+            return LogInSignUp();
+          }
+        });
+  }
+
   final FirebaseAuth _firebaseAuth;
   AuthService(this._firebaseAuth);
   final db = FirebaseFirestore.instance;
 
-  Stream<User> get authStateChanges => _firebaseAuth.authStateChanges();
+  Stream<User?> get authStateChanges => _firebaseAuth.authStateChanges();
 
-  Future<String> signIn(String email, String password) async {
+  Future<String?> signIn(String email, String password) async {
     try {
       await _firebaseAuth.signInWithEmailAndPassword(
           email: email, password: password);
@@ -26,7 +41,7 @@ class AuthService {
     print("User Signed Out");
   }
 
-  Future<String> signUp(
+  Future<String?> signUp(
     String email,
     String password,
     String name,
@@ -36,7 +51,7 @@ class AuthService {
         email: email,
         password: password,
       );
-      await FirebaseAuth.instance.currentUser.updateProfile(displayName: name);
+      await FirebaseAuth.instance.currentUser!.updateProfile(displayName: name);
 
       return "Account created";
     } on FirebaseAuthException catch (e) {
@@ -50,7 +65,7 @@ class AuthService {
   ) async {
     await db
         .collection("userData")
-        .doc(_firebaseAuth.currentUser.uid)
+        .doc(_firebaseAuth.currentUser!.uid)
         .collection('usersData')
         .add({'phoneNo': phoneNo});
     return "Success";
@@ -58,9 +73,9 @@ class AuthService {
 
   final GoogleSignIn googleSignIn = GoogleSignIn();
 
-  Future<User> signInWithGoogle() async {
+  Future<User?> signInWithGoogle() async {
     FirebaseAuth auth = FirebaseAuth.instance;
-    GoogleSignInAccount googleSignInAccount = await googleSignIn.signIn();
+    GoogleSignInAccount? googleSignInAccount = await googleSignIn.signIn();
     if (googleSignInAccount != null) {
       GoogleSignInAuthentication googleSignInAuthentication =
           await googleSignInAccount.authentication;
@@ -70,7 +85,7 @@ class AuthService {
       );
       UserCredential authResult =
           await _firebaseAuth.signInWithCredential(credential);
-      User currentUser = auth.currentUser;
+      User currentUser = auth.currentUser!;
       print(currentUser.uid);
       return currentUser;
     } else {
@@ -92,10 +107,11 @@ class AuthService {
 }
 
 class EmailValidator {
-  static String validate(String value) {
-    if (value.isEmpty) {
+  static String validate(String? value) {
+    if (value!.isEmpty) {
       return "Email Can not be empty.";
     }
+    return "";
   }
 }
 
@@ -104,39 +120,43 @@ class EmailSignUPValidator {
     if (value.isEmpty) {
       return "Email Can not be empty.";
     }
+    return "";
   }
 }
 
 class NameValidator {
-  static String validate(String value) {
-    if (value.isEmpty) {
+  static String validate(String? value) {
+    if (value!.isEmpty) {
       return "Name Can not be empty.";
     } else if (value.length <= 2) {
       return "Name too Short";
     } else if (value.length > 15) {
       return "Name too Long";
     }
+    return "";
   }
 }
 
 class PasswordValidator {
-  static String validate(String value) {
-    if (value.isEmpty) {
+  static String validate(String? value) {
+    if (value!.isEmpty) {
       return "Password Can not be empty.";
     } else if (value.length < 8) {
       return "Password too short. ";
     }
+    return "";
   }
 }
 
 class PhoneValidator {
-  static String validate(String value) {
-    if (value.isEmpty) {
+  static String validate(String? value) {
+    if (value!.isEmpty) {
       return "Please enter your Phone No.";
     } else if (value.length < 10) {
       return " Invalid Phone No. Format";
     } else if (value.length > 10) {
       return " Invalid Phone No. Format";
     }
+    return "";
   }
 }

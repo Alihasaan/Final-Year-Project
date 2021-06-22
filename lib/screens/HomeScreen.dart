@@ -1,14 +1,18 @@
 import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_geofire/flutter_geofire.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:onlineTaxiApp/Assistants/assistantMethods.dart';
+import 'package:onlineTaxiApp/Assistants/geofireAssistant.dart';
 import 'package:onlineTaxiApp/DataHandler/appData.dart';
 import 'package:onlineTaxiApp/Models/directionDetails.dart';
+import 'package:onlineTaxiApp/Models/driverNear.dart';
 import 'package:onlineTaxiApp/Models/users_model.dart';
 import 'package:onlineTaxiApp/main.dart';
 import 'package:onlineTaxiApp/screens/Divider.dart';
@@ -21,58 +25,81 @@ import 'package:onlineTaxiApp/utilities/constants.dart';
 import 'package:provider/provider.dart';
 
 class MainAppPage extends StatefulWidget {
-  final UserModel currentUser;
+  final UserModel? currentUser;
 
-  const MainAppPage({Key key, this.currentUser}) : super(key: key);
+  const MainAppPage({Key? key, this.currentUser}) : super(key: key);
+
+  get app => null;
   @override
   _MainAppPageState createState() => _MainAppPageState();
 }
 
 class _MainAppPageState extends State<MainAppPage> {
   Completer<GoogleMapController> _googleMapController = Completer();
-  GoogleMapController newGoogleMapController;
+  late GoogleMapController newGoogleMapController;
 
-  Position currentPosition;
-  LatLng currenLocation = LatLng(33.65258674284576, 73.07084250411232);
+  late Position currentPosition;
+
   LatLng destLocation = LatLng(33.69817543885961, 73.07077813109619);
-  String userNum;
+  String? userNum;
   var geoLocator = Geolocator();
   void locatePosition() async {
     Position position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high);
-
+    setState(() {
+      currentPosition = position;
+    });
     LatLng positionLatLing = LatLng(position.altitude, position.latitude);
     CameraPosition cameraPosition =
         CameraPosition(target: positionLatLing, zoom: 14);
-    currenLocation = LatLng(33.65258674284576, 73.07084250411232);
+
     String address =
         await AssistantsMethods.searchCoordinatesAddress(position, context);
     print(address);
     setState(() {
       userLocation = address;
     });
+    print("!----------------------Current Pos :");
+    print(currentPosition);
+    intiializeGeoFire();
   }
 
+  bool nearbyDriverKeyLoaded = false;
   Set<Marker> _marker = Set<Marker>();
   Set<Circle> _circle = {};
-  String userLocation;
+  String? userLocation;
   bool requestRide = false;
   Set<Polyline> _polylines = {};
   List<LatLng> polylineCoordinates = [];
 
-  DriectionDetails tripDetails;
+  late DatabaseReference _rideRefDB;
+
+  late BitmapDescriptor nearByDriverIcon;
+
+  DriectionDetails? tripDetails;
+
   @override
   void initState() {
     super.initState();
+
+    BitmapDescriptor.fromAssetImage(
+            ImageConfiguration(size: Size(1, 1)), "assets/taxi_logo.png")
+        .then((value) {
+      nearByDriverIcon = value;
+    });
+    fireDatabase();
+  }
+
+  void fireDatabase() async {
+    final FirebaseApp app = await Firebase.initializeApp();
+    final FirebaseDatabase database = FirebaseDatabase(app: app);
+    _rideRefDB = database.reference().child('ride_requests').push();
+    print("!---------------");
+    print(_rideRefDB);
   }
 
   @override
   Widget build(BuildContext context) {
-    print("!---------------" +
-        widget.currentUser.userName +
-        "-----" +
-        widget.currentUser.userPhoneno);
-
     const colorizeColors = [
       Colors.greenAccent,
       Colors.purple,
@@ -112,21 +139,21 @@ class _MainAppPageState extends State<MainAppPage> {
                       radius: 35,
                       backgroundColor: primary,
                       backgroundImage:
-                          FirebaseAuth.instance.currentUser.photoURL != null
+                          (FirebaseAuth.instance.currentUser!.photoURL != null
                               ? NetworkImage(FirebaseAuth
-                                  .instance.currentUser.photoURL
+                                  .instance.currentUser!.photoURL
                                   .toString()
                                   .replaceAll("s96-c", "s400-c"))
                               : AssetImage(
                                   "assets/user_profile.png",
-                                ),
+                                )) as ImageProvider<Object>?,
                     ),
                     SizedBox(
                       height: 5,
                     ),
-                    FirebaseAuth.instance.currentUser.displayName != null
+                    FirebaseAuth.instance.currentUser!.displayName != null
                         ? Text(
-                            FirebaseAuth.instance.currentUser.displayName,
+                            FirebaseAuth.instance.currentUser!.displayName!,
                             style: TextStyle(
                               color: Colors.white,
                               fontFamily: 'OpenSans',
@@ -305,8 +332,8 @@ class _MainAppPageState extends State<MainAppPage> {
                                       ),
                                       Text(
                                         Provider.of<AppData>(context)
-                                            .pickUpLocation
-                                            .placeName,
+                                            .pickUpLocation!
+                                            .placeName!,
                                         style: TextStyle(
                                             fontSize: 20, color: scText),
                                       ),
@@ -382,8 +409,8 @@ class _MainAppPageState extends State<MainAppPage> {
                                           Flexible(
                                             child: Text(
                                               Provider.of<AppData>(context)
-                                                  .dropOffLocation
-                                                  .placeName,
+                                                  .dropOffLocation!
+                                                  .placeName!,
                                               maxLines: 3,
                                               softWrap: false,
                                               overflow: TextOverflow.ellipsis,
@@ -439,8 +466,8 @@ class _MainAppPageState extends State<MainAppPage> {
                                                     ),
                                                     Text(
                                                       tripDetails != null
-                                                          ? tripDetails
-                                                              .distanceText
+                                                          ? tripDetails!
+                                                              .distanceText!
                                                           : "",
                                                       style: TextStyle(
                                                           fontFamily:
@@ -458,7 +485,7 @@ class _MainAppPageState extends State<MainAppPage> {
                                                 Expanded(
                                                   child: Text(
                                                     tripDetails != null
-                                                        ? "\Rs. ${AssistantsMethods.calculateTRideFares(tripDetails)}"
+                                                        ? "\Rs. ${AssistantsMethods.calculateTRideFares(tripDetails!)}"
                                                         : "",
                                                     style: TextStyle(
                                                         fontFamily: 'OpenSans',
@@ -704,6 +731,7 @@ class _MainAppPageState extends State<MainAppPage> {
                                 setState(() {
                                   requestRide = false;
                                 });
+                                _rideRefDB.remove();
                                 ;
                               }),
                         ),
@@ -723,12 +751,14 @@ class _MainAppPageState extends State<MainAppPage> {
 
   // ignore: missing_return
   Future<Widget> getPlaceDirction() async {
-    var intialPos = Provider.of<AppData>(context, listen: false).pickUpLocation;
-    var finalPos = Provider.of<AppData>(context, listen: false).dropOffLocation;
+    var intialPos =
+        Provider.of<AppData>(context, listen: false).pickUpLocation!;
+    var finalPos =
+        Provider.of<AppData>(context, listen: false).dropOffLocation!;
 
-    var pickUpLatng = LatLng(intialPos.latitude, intialPos.longitude);
+    var pickUpLatng = LatLng(intialPos.latitude!, intialPos.longitude!);
 
-    var dropOffLatng = LatLng(finalPos.latitude, finalPos.longitude);
+    var dropOffLatng = LatLng(finalPos.latitude!, finalPos.longitude!);
 
     showDialog(
         context: context,
@@ -746,16 +776,16 @@ class _MainAppPageState extends State<MainAppPage> {
                 ),
               ),
             ));
-    var details =
-        await AssistantsMethods.getDirectionDetails(pickUpLatng, dropOffLatng);
+    DriectionDetails? details = await (AssistantsMethods.getDirectionDetails(
+        pickUpLatng, dropOffLatng));
     setState(() {
       tripDetails = details;
     });
     Navigator.pop(context);
-    print("Polylines" + details.encodedPoints);
+    print("Polylines" + details!.encodedPoints!);
     PolylinePoints polylinePoints = PolylinePoints();
     List<PointLatLng> decodePolylinesPoints =
-        polylinePoints.decodePolyline(details.encodedPoints);
+        polylinePoints.decodePolyline(details.encodedPoints!);
     polylineCoordinates.clear();
     if (decodePolylinesPoints.isNotEmpty) {
       decodePolylinesPoints.forEach((PointLatLng pointLatLng) {
@@ -830,23 +860,12 @@ class _MainAppPageState extends State<MainAppPage> {
         strokeColor: Colors.amberAccent,
       ));
     });
+    return SizedBox();
   }
 
   void sendRideRequest() {
-    /* FirebaseDatabase.instance
-        .reference()
-        .child("Rides")
-        .once()
-        .then((DataSnapshot dataSnapshot) {
-      if (dataSnapshot.value != null) {
-        print("!--------------" + dataSnapshot.value["Rider_name"]);
-      } else {
-        print(dataSnapshot.value);
-      }
-    });*/
-
-    var pickUp = Provider.of<AppData>(context, listen: false).pickUpLocation;
-    var dropOff = Provider.of<AppData>(context, listen: false).dropOffLocation;
+    var pickUp = Provider.of<AppData>(context, listen: false).pickUpLocation!;
+    var dropOff = Provider.of<AppData>(context, listen: false).dropOffLocation!;
     Map pickUpLocMap = {
       "latitude": pickUp.latitude.toString(),
       "longitude": pickUp.longitude.toString(),
@@ -860,18 +879,105 @@ class _MainAppPageState extends State<MainAppPage> {
       "pickup": pickUpLocMap,
       "dropoff": dropOffLocMap,
       "created_at": DateTime.now().toString(),
-      "userid": widget.currentUser.userID,
-      "username": widget.currentUser.userName,
-      "userphone": widget.currentUser.userPhoneno,
+      "userid": widget.currentUser!.userID,
+      "username": widget.currentUser!.userName,
+      "userphone": widget.currentUser!.userPhoneno,
       "pickup_address": pickUp.placeName,
       "dropoff_address": dropOff.placeName,
     };
+    print('!----------!Instance');
+    print(_rideRefDB);
 
-    /* print(db);
-    try {
-      db.child("Ride_Requests").set(rideInfoMap);
-    } on FirebaseException catch (e) {
-      print(e.message);
-    }*/
+    _rideRefDB.set(rideInfoMap);
+  }
+
+  void intiializeGeoFire() {
+    Geofire.initialize("availableDrivers");
+    Geofire.queryAtLocation(
+            currentPosition.latitude, currentPosition.longitude, 10)!
+        .listen((map) {
+      print(map);
+      if (map != null) {
+        var callBack = map['callBack'];
+
+        switch (callBack) {
+          case Geofire.onKeyEntered:
+            NearbyDrivers nearbyDrivers = NearbyDrivers(
+                Key: map['key'],
+                latitude: map['latitude'],
+                longitude: map['longitude']);
+            nearbyDrivers.Key = map['key'];
+            nearbyDrivers.latitude = map['latitude'];
+            nearbyDrivers.longitude = map['longitude'];
+            GeoFireAssistants.nearByDriversList.add(nearbyDrivers);
+            if (nearbyDriverKeyLoaded == true) {
+              updateNearByDriversOnMap();
+            }
+
+            break;
+
+          case Geofire.onKeyExited:
+            GeoFireAssistants.removeDriverfromList(map['key']);
+            updateNearByDriversOnMap();
+            break;
+
+          case Geofire.onKeyMoved:
+            NearbyDrivers nearbyDrivers = NearbyDrivers(
+                Key: map['key'],
+                latitude: map['latitude'],
+                longitude: map['longitude']);
+            nearbyDrivers.Key = map['key'];
+            nearbyDrivers.latitude = map['latitude'];
+            nearbyDrivers.longitude = map['longitude'];
+            GeoFireAssistants.updateDriverLocation(nearbyDrivers);
+            updateNearByDriversOnMap();
+            break;
+
+          case Geofire.onGeoQueryReady:
+            updateNearByDriversOnMap();
+            break;
+        }
+      }
+
+      setState(() {});
+    });
+  }
+
+  void updateNearByDriversOnMap() {
+    print("!-------------!" + "Driver Markers");
+    setState(() {
+      _marker.clear();
+    });
+    Set<Marker> dMarkers = Set<Marker>();
+    for (NearbyDrivers drivers in GeoFireAssistants.nearByDriversList) {
+      LatLng driverCurrentPosition =
+          LatLng(drivers.latitude, drivers.longitude);
+      Marker marker = Marker(
+        markerId: MarkerId('driver${drivers.Key}'),
+        position: driverCurrentPosition,
+        // ignore: unnecessary_null_comparison
+        icon: nearByDriverIcon,
+        rotation: AssistantsMethods.createRandomNumber(360),
+      );
+      dMarkers.add(marker);
+    }
+    setState(() {
+      _marker = dMarkers;
+    });
+  }
+
+  void createIconMarker() {
+    // ignore: unnecessary_null_comparison
+    if (nearByDriverIcon == null) {
+      ImageConfiguration imageConfiguration =
+          createLocalImageConfiguration(context, size: Size(2, 2));
+      BitmapDescriptor.fromAssetImage(
+              imageConfiguration, "assets/taxi_logo.png")
+          .then((value) {
+        setState(() {
+          nearByDriverIcon = value;
+        });
+      });
+    }
   }
 }

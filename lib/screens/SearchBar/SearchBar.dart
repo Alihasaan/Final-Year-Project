@@ -79,7 +79,7 @@ class _SearchBarState extends State<SearchBar> {
                                                 null
                                             ? 'From'
                                             : Provider.of<AppData>(context)
-                                                .pickUpLocation
+                                                .pickUpLocation!
                                                 .placeName,
                                         labelStyle: TextStyle(
                                           fontFamily: 'AlegreyaSansSC',
@@ -232,15 +232,15 @@ class _SearchBarState extends State<SearchBar> {
 }
 
 class PredictionTitle extends StatelessWidget {
-  final PlacePredictions placePredictions;
-  PredictionTitle({Key key, this.placePredictions}) : super(key: key);
+  final PlacePredictions? placePredictions;
+  PredictionTitle({Key? key, this.placePredictions}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Container(
         child: TextButton(
       onPressed: () {
-        getPlacesDetails(placePredictions.place_id, context);
+        getPlacesDetails(placePredictions!.place_id, context);
       },
       child: Card(
         child: ListTile(
@@ -249,16 +249,16 @@ class PredictionTitle extends StatelessWidget {
             color: Colors.amber[400],
           ),
           title: Text(
-            placePredictions.main_text == null
+            placePredictions!.main_text == null
                 ? ""
-                : placePredictions.main_text,
+                : placePredictions!.main_text!,
             overflow: TextOverflow.ellipsis,
             style: TextStyle(fontSize: 20, color: Colors.grey[700]),
           ),
           subtitle: Text(
-            placePredictions.secondary_text == null
+            placePredictions!.secondary_text == null
                 ? ""
-                : placePredictions.secondary_text,
+                : placePredictions!.secondary_text!,
             overflow: TextOverflow.ellipsis,
             style: TextStyle(fontSize: 20, color: priText),
           ),
@@ -312,7 +312,7 @@ class PredictionTitle extends StatelessWidget {
         );
   }
 
-  void getPlacesDetails(String placeID, context) async {
+  void getPlacesDetails(String? placeID, context) async {
     showDialog(
         context: context,
         builder: (BuildContext context) => Dialog(

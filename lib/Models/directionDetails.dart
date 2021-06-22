@@ -1,9 +1,9 @@
 class DriectionDetails {
-  int durationValue;
-  int distanceValue;
-  String durationText;
-  String distanceText;
-  String encodedPoints;
+  int? durationValue;
+  int? distanceValue;
+  String? durationText;
+  String? distanceText;
+  String? encodedPoints;
 
   DriectionDetails(
       {this.distanceValue,

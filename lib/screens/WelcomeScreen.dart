@@ -18,12 +18,12 @@ class WelcomeScreen extends StatefulWidget {
 
 class _WelcomeScreenState extends State<WelcomeScreen> {
   bool showNum = true;
-  bool phoneNumber;
+  bool? phoneNumber;
 
   bool proceeing = false;
   final _formKey = GlobalKey<FormState>();
   UserModel currentUser = UserModel();
-  String PhotoURL = FirebaseAuth.instance.currentUser.photoURL;
+  String? PhotoURL = FirebaseAuth.instance.currentUser!.photoURL;
   TextEditingController phonectrl = new TextEditingController();
 
   final db = FirebaseFirestore.instance;
@@ -87,11 +87,11 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                   CircleAvatar(
                     radius: 60,
                     backgroundColor: Colors.green[50],
-                    backgroundImage: PhotoURL != null
-                        ? NetworkImage(PhotoURL.replaceAll("s96-c", "s400-c"))
+                    backgroundImage: (PhotoURL != null
+                        ? NetworkImage(PhotoURL!.replaceAll("s96-c", "s400-c"))
                         : AssetImage(
                             "assets/user_profile.png",
-                          ),
+                          )) as ImageProvider<Object>?,
                   ),
                   SizedBox(height: 20.0),
                   Text(
@@ -104,9 +104,9 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                     ),
                   ),
                   SizedBox(height: 20.0),
-                  FirebaseAuth.instance.currentUser.displayName != null
+                  FirebaseAuth.instance.currentUser!.displayName != null
                       ? Text(
-                          FirebaseAuth.instance.currentUser.displayName,
+                          FirebaseAuth.instance.currentUser!.displayName!,
                           style: TextStyle(
                             color: priText,
                             fontFamily: 'OpenSans',
@@ -145,11 +145,11 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     );
   }
 
-  void getuser(String phone) {
-    currentUser.userID = FirebaseAuth.instance.currentUser.uid;
-    currentUser.userName = FirebaseAuth.instance.currentUser.displayName;
+  void getuser(String? phone) {
+    currentUser.userID = FirebaseAuth.instance.currentUser!.uid;
+    currentUser.userName = FirebaseAuth.instance.currentUser!.displayName;
     currentUser.userPhoneno = phone;
-    currentUser.userEmail = FirebaseAuth.instance.currentUser.email;
+    currentUser.userEmail = FirebaseAuth.instance.currentUser!.email;
     phoneNumber = true;
   }
 
@@ -160,7 +160,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
         // print(snapshot);
         if (!snapshot.hasData) {
           return CircularProgressIndicator(backgroundColor: Colors.white);
-        } else if (snapshot.data.docs.length == 0) {
+        } else if (snapshot.data!.docs.length == 0) {
           return TextButton(
             onPressed: () {
               setState(() {
@@ -171,11 +171,11 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
             child: Text("Add Phone No.", style: TextStyle(color: priText)),
           );
         } else {
-          getuser(snapshot.data.docs[0]['phoneNo']);
+          getuser(snapshot.data!.docs[0]['phoneNo']);
 
           return showNum == true
               ? Text(
-                  snapshot.data.docs[0]['phoneNo'],
+                  snapshot.data!.docs[0]['phoneNo'],
                   style: TextStyle(
                     color: scText,
                     fontFamily: 'OpenSans',
@@ -234,7 +234,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
         _buildPhoneNoTF(),
         TextButton(
             onPressed: () {
-              if (_formKey.currentState.validate()) {
+              if (_formKey.currentState!.validate()) {
                 AuthService(FirebaseAuth.instance)
                     .addPhoneNo("+92" + phonectrl.text)
                     .then((value) => {
@@ -386,7 +386,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   Stream<QuerySnapshot> getTripsStream() async* {
     yield* db
         .collection('userData')
-        .doc(FirebaseAuth.instance.currentUser.uid)
+        .doc(FirebaseAuth.instance.currentUser!.uid)
         .collection('usersData')
         .snapshots();
   }
