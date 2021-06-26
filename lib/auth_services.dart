@@ -107,25 +107,23 @@ class AuthService {
 }
 
 class EmailValidator {
-  static String validate(String? value) {
+  static String? validate(String? value) {
     if (value!.isEmpty) {
       return "Email Can not be empty.";
     }
-    return "";
   }
 }
 
 class EmailSignUPValidator {
-  static String validate(String value) {
+  static String? validate(String value) {
     if (value.isEmpty) {
       return "Email Can not be empty.";
     }
-    return "";
   }
 }
 
 class NameValidator {
-  static String validate(String? value) {
+  static String? validate(String? value) {
     if (value!.isEmpty) {
       return "Name Can not be empty.";
     } else if (value.length <= 2) {
@@ -138,18 +136,17 @@ class NameValidator {
 }
 
 class PasswordValidator {
-  static String validate(String? value) {
+  static String? validate(String? value) {
     if (value!.isEmpty) {
       return "Password Can not be empty.";
     } else if (value.length < 8) {
       return "Password too short. ";
     }
-    return "";
   }
 }
 
 class PhoneValidator {
-  static String validate(String? value) {
+  static String? validate(String? value) {
     if (value!.isEmpty) {
       return "Please enter your Phone No.";
     } else if (value.length < 10) {
@@ -157,6 +154,5 @@ class PhoneValidator {
     } else if (value.length > 10) {
       return " Invalid Phone No. Format";
     }
-    return "";
   }
 }

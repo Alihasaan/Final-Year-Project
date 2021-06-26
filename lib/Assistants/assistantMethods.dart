@@ -1,5 +1,6 @@
+import 'dart:convert';
 import 'dart:math';
-
+import 'package:http/http.dart' as http;
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:onlineTaxiApp/Assistants/requestAssistants.dart';
@@ -75,5 +76,35 @@ class AssistantsMethods {
     var random = Random();
     int radNumber = random.nextInt(num);
     return radNumber.toDouble();
+  }
+
+  static sendRideReqToDriver(String token, context, String ride_req_id) async {
+    String rideDestination = Provider.of<AppData>(context, listen: false)
+        .dropOffLocation!
+        .placeName
+        .toString();
+
+    Map<String, String> headerMap = {
+      "Content-Type": "application/json",
+      "Authorization": serverKey,
+    };
+    Map notificationMap = {
+      "title": "New Ride Request",
+      "body": "New Ride Request To $rideDestination.",
+    };
+    Map dataMap = {
+      "click_action": "FLUTTER_NOTIFICATION_CLICK",
+      "id": '1',
+      'status': "done",
+      "ride-request-id": ride_req_id,
+    };
+    Map sendNotification = {
+      'notification': notificationMap,
+      'data': dataMap,
+      'priority': "high",
+      'to': token,
+    };
+    var res = await http.post(Uri.parse("https://fcm.googleapis.com/fcm/send"),
+        headers: headerMap, body: jsonEncode(sendNotification));
   }
 }
