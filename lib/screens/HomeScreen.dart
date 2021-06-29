@@ -41,7 +41,7 @@ class _MainAppPageState extends State<MainAppPage> {
   Completer<GoogleMapController> _googleMapController = Completer();
   late GoogleMapController newGoogleMapController;
   String appState = "normal";
-  String rideState = "normal";
+  String rideState = "";
   DriverModel driverDetails = DriverModel();
   late Position currentPosition;
 
@@ -125,7 +125,7 @@ class _MainAppPageState extends State<MainAppPage> {
       right: 0,
       bottom: 0,
       child: Container(
-        height: 230,
+        height: MediaQuery.of(context).size.height / height,
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.only(
@@ -215,7 +215,7 @@ class _MainAppPageState extends State<MainAppPage> {
         child: GestureDetector(
           onTap: () => FocusScope.of(context).unfocus(),
           child: Container(
-            height: 330,
+            height: MediaQuery.of(context).size.height / height,
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.only(
@@ -744,17 +744,14 @@ class _MainAppPageState extends State<MainAppPage> {
             locatePosition();
           },
         ),
-        rideState == "normal"
-            ? requestRide == false
-                ? rideDetailForm()
-                : rideRequested()
-            : rideAccepted(driverDetails)
+        requestRide == false ? rideDetailForm() : rideRequested(),
+        rideAccepted(driverDetails)
       ]),
     );
   }
 
   Widget rideAccepted(DriverModel driver) {
-    return DriverDetails(driver: driver);
+    return rideState == "Accepted" ? DriverDetails(driver: driver) : SizedBox();
   }
 
   // ignore: missing_return
@@ -901,6 +898,42 @@ class _MainAppPageState extends State<MainAppPage> {
     print(_rideRefDB);
 
     _rideRefDB.set(rideInfoMap);
+    rideStreamSub = _rideRefDB.onValue.listen((event) {
+      if (event.snapshot.value == null) {
+        return;
+      }
+      if (event.snapshot.value["ride-status"] != null) {
+        setState(() {
+          rideState = event.snapshot.value["ride-status"].toString();
+        });
+        print(rideState);
+      }
+      if (rideState == "Accepted") {
+        _driverRefDB
+            .child(event.snapshot.value["driver_id"].toString())
+            .once()
+            .then((data) => {
+                  if (data.value != null)
+                    {
+                      setState(() {
+                        driverDetails.driverID =
+                            event.snapshot.value["driver_id"].toString();
+                        ;
+                        driverDetails.driverName = data.value["driver_name"];
+                        driverDetails.driverPhoneno =
+                            data.value["driver_phone"];
+                        driverDetails.driverPhotoUrl =
+                            "https://cdn2.iconfinder.com/data/icons/avatars-99/62/avatar-370-456322-512.png";
+
+                        requestRide = false;
+                      }),
+                      print("Driver Info : "),
+                      print(driverDetails.driverID)
+                    }
+                });
+        rideAccepted(driverDetails);
+      }
+    });
   }
 
   void intiializeGeoFire() {
@@ -994,7 +1027,22 @@ class _MainAppPageState extends State<MainAppPage> {
   }
 
   void noDriverFound() {
-    Alert(context: context, title: "No Driver Found").show();
+    Alert(
+            context: context,
+            title: "No Driver Found",
+            content: Container(
+              padding: EdgeInsets.only(left: 20),
+              child: Text(
+                "We are sorry but there's currently no driver availble in your area. Please try again after a few seconds.",
+                style: TextStyle(fontSize: 12, color: scText),
+              ),
+            ),
+            style: AlertStyle(
+              isCloseButton: true,
+            ),
+            buttons: [],
+            type: AlertType.warning)
+        .show();
     setState(() {
       requestRide = false;
     });
@@ -1048,24 +1096,7 @@ class _MainAppPageState extends State<MainAppPage> {
                   if (event.snapshot.value.toString() == "ride-accpted") {
                     rideRequestTimeout = 40;
                     timer.cancel();
-                    _driverRefDB.child(drivers.Key).once().then((data) => {
-                          if (data.value != null)
-                            {
-                              setState(() {
-                                driverDetails.driverID = drivers.Key;
-                                driverDetails.driverName =
-                                    data.value["driver_name"];
-                                driverDetails.driverPhoneno =
-                                    data.value["driver_phone"];
-                                driverDetails.driverPhotoUrl =
-                                    "https://cdn2.iconfinder.com/data/icons/avatars-99/62/avatar-370-456322-512.png";
-                                rideState = "RideAccepted";
-                                requestRide = false;
-                              }),
-                              print("Driver Info : "),
-                              print(driverDetails)
-                            }
-                        });
+
                     _driverRefDB
                         .child(drivers.Key)
                         .child("newRide")

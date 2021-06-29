@@ -11,6 +11,7 @@ final kLabelStyle = TextStyle(
   fontFamily: 'OpenSans',
 );
 
+final double height = 2.6;
 final kBoxDecorationStyle = BoxDecoration(
   color: Colors.white,
   borderRadius: BorderRadius.circular(10.0),
