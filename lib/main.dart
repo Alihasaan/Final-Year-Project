@@ -162,8 +162,7 @@ class _LogInSignUpState extends State<LogInSignUp> {
       processing = true;
     });
 
-    await context
-        .read<AuthService>()
+    await AuthService(FirebaseAuth.instance)
         .signUp(
           emailctrl!.text,
           passctrl!.text,

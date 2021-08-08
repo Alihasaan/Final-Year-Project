@@ -33,80 +33,125 @@ class DriverDetails extends StatelessWidget {
                   ],
                 ),
                 child: driver.driverID != null
-                    ? Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                            SizedBox(
-                              height: 5,
-                            ),
-                            Center(
-                              child: Text("Rider Details",
-                                  style: TextStyle(
-                                    fontSize: 20.0,
-                                    color: Colors.grey,
-                                    fontWeight: FontWeight.bold,
-                                    fontFamily: 'OpenSans',
-                                  )),
-                            ),
-                            SizedBox(
-                              height: 5,
-                            ),
-                            Container(
-                              padding: EdgeInsets.all(8),
-                              decoration: BoxDecoration(
-                                color: Colors.lightGreen[100],
-                                shape: BoxShape.rectangle,
-                                borderRadius: BorderRadius.circular(6),
+                    ? SingleChildScrollView(
+                        child: Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              SizedBox(
+                                height: 5,
                               ),
-                              child: Row(
-                                children: [
-                                  SizedBox(
-                                    width: 65,
-                                  ),
-                                  CircleAvatar(
-                                    radius: 30,
-                                    backgroundColor: primary,
-                                    child: ClipOval(
-                                      child: SizedBox(
-                                          width: 80,
-                                          height: 80,
-                                          child: Image.network(driver
-                                              .driverPhotoUrl
-                                              .toString())),
+                              Center(
+                                child: Text("Driver Details",
+                                    style: TextStyle(
+                                      fontSize: 20.0,
+                                      color: Colors.grey,
+                                      fontWeight: FontWeight.bold,
+                                      fontFamily: 'OpenSans',
+                                    )),
+                              ),
+                              SizedBox(
+                                height: 5,
+                              ),
+                              Container(
+                                padding: EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color: Colors.lightGreen[100],
+                                  shape: BoxShape.rectangle,
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                                child: Row(
+                                  children: [
+                                    SizedBox(
+                                      width: 65,
                                     ),
-                                  ),
-                                  SizedBox(
-                                    width: 10,
-                                  ),
-                                  Column(
-                                    children: [
-                                      Text(driver.driverName.toString(),
-                                          style: TextStyle(
-                                              fontSize: 18.0,
-                                              fontWeight: FontWeight.normal,
-                                              fontFamily: 'OpenSans')),
-                                      SizedBox(
-                                        height: 5,
+                                    CircleAvatar(
+                                      radius: 30,
+                                      backgroundColor: primary,
+                                      child: ClipOval(
+                                        child: SizedBox(
+                                            width: 80,
+                                            height: 80,
+                                            child: Image.network(driver
+                                                .driverPhotoUrl
+                                                .toString())),
                                       ),
-                                      Row(
-                                        children: [
-                                          Icon(
-                                            Icons.phone_android,
-                                          ),
-                                          Text(driver.driverPhoneno.toString(),
-                                              style: TextStyle(
-                                                  fontSize: 18.0,
-                                                  fontWeight: FontWeight.normal,
-                                                  fontFamily: 'OpenSans')),
-                                        ],
-                                      )
-                                    ],
-                                  )
-                                ],
+                                    ),
+                                    SizedBox(
+                                      width: 10,
+                                    ),
+                                    Column(
+                                      children: [
+                                        Text(driver.driverName.toString(),
+                                            style: TextStyle(
+                                                fontSize: 18.0,
+                                                fontWeight: FontWeight.normal,
+                                                fontFamily: 'OpenSans')),
+                                        SizedBox(
+                                          height: 5,
+                                        ),
+                                        Row(
+                                          children: [
+                                            Icon(
+                                              Icons.phone_android,
+                                            ),
+                                            Text(
+                                                driver.driverPhoneno.toString(),
+                                                style: TextStyle(
+                                                    fontSize: 18.0,
+                                                    fontWeight:
+                                                        FontWeight.normal,
+                                                    fontFamily: 'OpenSans')),
+                                          ],
+                                        )
+                                      ],
+                                    )
+                                  ],
+                                ),
                               ),
-                            )
-                          ])
+                              SizedBox(
+                                height: 10,
+                              ),
+                              Container(
+                                padding: EdgeInsets.all(10),
+                                color: Colors.grey,
+                                width: MediaQuery.of(context).size.width,
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    CircleAvatar(
+                                      radius: 40,
+                                      backgroundColor: primary,
+                                      child: Icon(
+                                        Icons.local_taxi,
+                                        size: 50,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                    Text(driver.carRegNo!,
+                                        style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 20,
+                                            fontWeight: FontWeight.bold)),
+                                    Text(driver.carModel!,
+                                        style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 20,
+                                            fontWeight: FontWeight.bold)),
+                                    Text("(" + driver.carColor! + ")",
+                                        style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 15,
+                                            fontWeight: FontWeight.bold)),
+                                    SizedBox(
+                                      height: 10,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ]),
+                      )
                     : SizedBox(
                         width: 80,
                         height: 100,

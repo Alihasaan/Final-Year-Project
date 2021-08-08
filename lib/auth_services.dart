@@ -51,6 +51,8 @@ class AuthService {
         email: email,
         password: password,
       );
+      print("!---------! Siging Up");
+      // ignore: deprecated_member_use
       await FirebaseAuth.instance.currentUser!.updateProfile(displayName: name);
 
       return "Account created";

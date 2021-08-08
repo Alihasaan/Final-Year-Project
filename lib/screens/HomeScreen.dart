@@ -925,10 +925,19 @@ class _MainAppPageState extends State<MainAppPage> {
                         driverDetails.driverPhotoUrl =
                             "https://cdn2.iconfinder.com/data/icons/avatars-99/62/avatar-370-456322-512.png";
 
+                        driverDetails.carModel =
+                            data.value["Car_Details"]["car_model"].toString();
+                        driverDetails.carModelYear = data.value["Car_Details"]
+                                ["car_model_year"]
+                            .toString();
+                        driverDetails.carRegNo =
+                            data.value["Car_Details"]["car_reg-no"].toString();
+                        driverDetails.carColor =
+                            data.value["Car_Details"]["car_color"].toString();
                         requestRide = false;
                       }),
                       print("Driver Info : "),
-                      print(driverDetails.driverID)
+                      print(driverDetails.carModel)
                     }
                 });
         rideAccepted(driverDetails);
@@ -1093,7 +1102,7 @@ class _MainAppPageState extends State<MainAppPage> {
                     .child("newRide")
                     .onValue
                     .listen((event) {
-                  if (event.snapshot.value.toString() == "ride-accpted") {
+                  if (event.snapshot.value.toString() == "ride-accepted") {
                     rideRequestTimeout = 40;
                     timer.cancel();
 
@@ -1101,8 +1110,11 @@ class _MainAppPageState extends State<MainAppPage> {
                         .child(drivers.Key)
                         .child("newRide")
                         .onDisconnect();
+                    timer.cancel();
                   }
                 });
+                print("Ride req time out --------");
+                print(rideRequestTimeout);
                 if (rideRequestTimeout == 0) {
                   _driverRefDB
                       .child(drivers.Key)
