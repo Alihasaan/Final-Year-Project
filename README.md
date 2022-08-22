@@ -1,10 +1,10 @@
 # onlineTaxiApp
 
-A new Flutter project.
+This Flutter project was developed as a final year project for my university.
 
 ## Getting Started
 
-This project is a starting point for a Flutter application.
+There are two app one driver side and one Client/User side.
 
 A few resources to get you started if this is your first Flutter project:
 
